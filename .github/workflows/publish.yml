@@ -1,0 +1,82 @@
+name: Publish
+
+# Releasing is not a thing anyone does. Merge a version bump to main and the
+# package ships: this workflow asks the registry whether package.json's version
+# already exists, and publishes it if not.
+#
+# Why that check rather than a tag trigger: a tag pushed by GITHUB_TOKEN does
+# not start another workflow, so "push a tag, let publish.yml notice" silently
+# never runs. Asking npm what is published is also idempotent — re-running this,
+# or pushing a tag by hand, cannot double-publish or fail confusingly.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  # The reconciler, and the reason this is reliable. A merge made by auto-merge
+  # uses GITHUB_TOKEN, and a push with that token starts no workflow — so the
+  # push trigger above silently does not fire for exactly the merges that matter.
+  # The schedule asks the registry the same idempotent question on a timer: is
+  # package.json's version published? If a release was missed by any means, it
+  # goes out within the hour without anyone noticing it was missed.
+  schedule:
+    - cron: '29 * * * *'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      # Tagging the released commit, so a version on the registry can always be
+      # traced back to the tree it was built from.
+      contents: write
+      # npm provenance: proves on the registry that this tarball was built by
+      # this workflow from this commit.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # npm >= 11.5.1 is required for trusted publishing (OIDC); Node 24 ships it.
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Is this version already on the registry?
+        id: check
+        run: |
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "→ $name@$version is already published; nothing to do."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "→ $name@$version is not on the registry; releasing it."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.check.outputs.publish == 'true'
+        run: npm ci --ignore-scripts
+
+      # Never publish something that would not have passed CI.
+      - if: steps.check.outputs.publish == 'true'
+        run: npm run verify
+
+      # Auth is trusted publishing (OIDC): npm accepts this job's identity token
+      # because the package's Trusted Publisher is pinned to exactly this repo
+      # and workflow. No npm token exists anywhere, so none can leak or expire.
+      - if: steps.check.outputs.publish == 'true'
+        run: npm publish
+
+      - name: Tag the released commit
+        if: steps.check.outputs.publish == 'true'
+        env:
+          TAG: v${{ steps.check.outputs.version }}
+        run: |
+          # Tag after a successful publish, so a tag never claims a release that
+          # did not happen. Skipped silently if it already exists.
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "→ tag $TAG already exists"
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi

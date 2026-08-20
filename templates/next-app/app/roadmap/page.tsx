@@ -5,7 +5,7 @@ export default function RoadmapPage() {
   return (
     <main>
       <h1>Roadmap</h1>
-      <p>Render RoadmapDoc.buckets from @bip-kit/core types.</p>
+      <p>Render RoadmapDoc.buckets from bip-kit types.</p>
     </main>
   );
 }

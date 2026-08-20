@@ -7,7 +7,7 @@ export type {
   ChangelogTag,
   ChangelogEntry,
   ReleaseEntry,
-} from "./types";
+} from "./types.js";
 
-export { parseContentBlocks, parseFrontmatter } from "./parse-content";
-export { parseVideoEmbed, videoEmbedSrc } from "./video-embed";
+export { parseContentBlocks, parseFrontmatter } from "./parse-content.js";
+export { parseVideoEmbed, videoEmbedSrc } from "./video-embed.js";

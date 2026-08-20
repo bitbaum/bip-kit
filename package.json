@@ -1,0 +1,59 @@
+{
+  "name": "bip-kit",
+  "version": "0.1.0",
+  "description": "Building in Public, as a content contract: parse markdown into typed blocks and ship a blog, roadmap, and changelog on your product site — bring your own design system.",
+  "license": "MIT",
+  "author": "Mao Nakamoto",
+  "homepage": "https://github.com/maonakamoto/bip-kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maonakamoto/bip-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/maonakamoto/bip-kit/issues"
+  },
+  "keywords": [
+    "build-in-public",
+    "blog",
+    "roadmap",
+    "changelog",
+    "markdown",
+    "headless",
+    "content",
+    "nextjs"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test test/*.test.js",
+    "verify": "npm run lint && npm run typecheck && npm run build && npm test",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.39.5",
+    "globals": "^15.15.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.67.0"
+  }
+}
