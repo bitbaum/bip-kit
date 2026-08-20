@@ -1,4 +1,4 @@
-import type { ContentBlock } from "./types";
+import type { ContentBlock } from "./types.js";
 
 /**
  * Parse repo-authored markdown into typed blocks.

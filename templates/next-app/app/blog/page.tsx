@@ -6,7 +6,7 @@ export default function BlogIndexPage() {
   return (
     <main>
       <h1>Blog</h1>
-      <p>Wire list posts here. Body rendering uses parseContentBlocks from @bip-kit/core.</p>
+      <p>Wire list posts here. Body rendering uses parseContentBlocks from bip-kit.</p>
     </main>
   );
 }
