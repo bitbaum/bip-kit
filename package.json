@@ -4,13 +4,13 @@
   "description": "Building in Public, as a content contract: parse markdown into typed blocks and ship a blog, roadmap, and changelog on your product site — bring your own design system.",
   "license": "MIT",
   "author": "Mao Nakamoto",
-  "homepage": "https://github.com/maonakamoto/bip-kit#readme",
+  "homepage": "https://github.com/bitbaum/bip-kit#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/maonakamoto/bip-kit.git"
+    "url": "git+https://github.com/bitbaum/bip-kit.git"
   },
   "bugs": {
-    "url": "https://github.com/maonakamoto/bip-kit/issues"
+    "url": "https://github.com/bitbaum/bip-kit/issues"
   },
   "keywords": [
     "build-in-public",
