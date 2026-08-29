@@ -7,9 +7,7 @@ const YOUTUBE =
   /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{6,})/;
 const VIMEO = /^(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/;
 
-export function parseVideoEmbed(
-  url: string,
-): { provider: "youtube" | "vimeo"; id: string } | null {
+export function parseVideoEmbed(url: string): { provider: "youtube" | "vimeo"; id: string } | null {
   const trimmed = url.trim();
   const yt = YOUTUBE.exec(trimmed);
   if (yt) return { provider: "youtube", id: yt[1] };

@@ -1,9 +1,9 @@
-import { test, before } from 'node:test';
-import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { test, before } from "node:test";
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, mkdirSync, writeFileSync, readdirSync, existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 /**
  * Consume the package the way npm does.
@@ -19,84 +19,79 @@ import { join } from 'node:path';
  * it by bare specifier from outside the repo.
  */
 
-const PUBLIC_API = [
-  'parseContentBlocks',
-  'parseFrontmatter',
-  'parseVideoEmbed',
-  'videoEmbedSrc',
-];
+const PUBLIC_API = ["parseContentBlocks", "parseFrontmatter", "parseVideoEmbed", "videoEmbedSrc"];
 
 let workspace;
 let installed;
 let probe;
 
 before(() => {
-  workspace = mkdtempSync(join(tmpdir(), 'bip-kit-pack-'));
-  installed = join(workspace, 'node_modules', 'bip-kit');
+  workspace = mkdtempSync(join(tmpdir(), "bip-kit-pack-"));
+  installed = join(workspace, "node_modules", "bip-kit");
   mkdirSync(installed, { recursive: true });
 
-  execFileSync('npm', ['pack', '--silent', '--pack-destination', workspace], {
+  execFileSync("npm", ["pack", "--silent", "--pack-destination", workspace], {
     cwd: process.cwd(),
-    stdio: ['ignore', 'ignore', 'inherit'],
+    stdio: ["ignore", "ignore", "inherit"],
   });
-  const tarball = readdirSync(workspace).find(f => f.endsWith('.tgz'));
-  assert.ok(tarball, 'npm pack produced no tarball');
+  const tarball = readdirSync(workspace).find((f) => f.endsWith(".tgz"));
+  assert.ok(tarball, "npm pack produced no tarball");
 
-  execFileSync('tar', ['-xzf', join(workspace, tarball), '-C', installed, '--strip-components=1']);
+  execFileSync("tar", ["-xzf", join(workspace, tarball), "-C", installed, "--strip-components=1"]);
 
   // Each probe records failure as a *value*, never a throw. A broken exports map
   // that crashes this hook would fail every assertion in the file at once and
   // bury which entry point actually broke.
   writeFileSync(
-    join(workspace, 'probe.mjs'),
+    join(workspace, "probe.mjs"),
     [
-      'const out = {};',
+      "const out = {};",
       'try { out.resolved = import.meta.resolve("bip-kit"); } catch { out.resolved = null; }',
       'try { out.exports = Object.keys(await import("bip-kit")).sort(); } catch { out.exports = null; }',
-      'console.log(JSON.stringify(out));',
-    ].join('\n')
+      "console.log(JSON.stringify(out));",
+    ].join("\n"),
   );
 
   probe = JSON.parse(
-    execFileSync('node', [join(workspace, 'probe.mjs')], {
+    execFileSync("node", [join(workspace, "probe.mjs")], {
       cwd: workspace,
-      encoding: 'utf8',
-    })
+      encoding: "utf8",
+    }),
   );
 });
 
-test('the package resolves from a consumer install', () => {
+test("the package resolves from a consumer install", () => {
   assert.ok(probe.resolved, '"bip-kit" did not resolve through its own exports map');
 });
 
-test('the entry point exposes its whole public API', () => {
+test("the entry point exposes its whole public API", () => {
   assert.ok(probe.exports, 'importing "bip-kit" from a consumer install threw');
   for (const name of PUBLIC_API) {
     assert.ok(probe.exports.includes(name), `"${name}" is missing from the published entry point`);
   }
 });
 
-test('the type declarations it advertises are actually in the tarball', () => {
+test("the type declarations it advertises are actually in the tarball", () => {
   const pkg = JSON.parse(
-    execFileSync('node', ['-p', 'JSON.stringify(require("./package.json"))'], {
+    execFileSync("node", ["-p", 'JSON.stringify(require("./package.json"))'], {
       cwd: installed,
-      encoding: 'utf8',
-    })
+      encoding: "utf8",
+    }),
   );
-  const types = pkg.exports['.'].types;
+  const types = pkg.exports["."].types;
   assert.ok(
     existsSync(join(installed, types)),
-    `the package advertises types at ${types}, which is not in the tarball`
+    `the package advertises types at ${types}, which is not in the tarball`,
   );
 });
 
-test('the tarball carries the documentation npm will render', () => {
-  for (const file of ['README.md', 'LICENSE']) {
+test("the tarball carries the documentation npm will render", () => {
+  for (const file of ["README.md", "LICENSE"]) {
     assert.ok(existsSync(join(installed, file)), `${file} is missing from the tarball`);
   }
 });
 
-test('the tarball ships built output, not raw TypeScript sources', () => {
-  assert.ok(existsSync(join(installed, 'dist', 'index.js')), 'dist/index.js missing');
-  assert.ok(!existsSync(join(installed, 'src')), 'src/ leaked into the tarball');
+test("the tarball ships built output, not raw TypeScript sources", () => {
+  assert.ok(existsSync(join(installed, "dist", "index.js")), "dist/index.js missing");
+  assert.ok(!existsSync(join(installed, "src")), "src/ leaked into the tarball");
 });
