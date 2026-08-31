@@ -11,7 +11,7 @@ name: Publish
 on:
   push:
     branches: [main]
-    tags: ['v*']
+    tags: ["v*"]
   # The reconciler, and the reason this is reliable. A merge made by auto-merge
   # uses GITHUB_TOKEN, and a push with that token starts no workflow — so the
   # push trigger above silently does not fire for exactly the merges that matter.
@@ -19,7 +19,7 @@ on:
   # package.json's version published? If a release was missed by any means, it
   # goes out within the hour without anyone noticing it was missed.
   schedule:
-    - cron: '29 * * * *'
+    - cron: "29 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -37,8 +37,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           # npm >= 11.5.1 is required for trusted publishing (OIDC); Node 24 ships it.
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Is this version already on the registry?
         id: check
