@@ -15,8 +15,10 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["**/*.ts"],
-    languageOptions: { globals: globals.node },
+    files: ["**/*.ts", "**/*.tsx"],
+    // Client islands touch browser APIs; the parser and server components
+    // run under Node. Both global sets, one config.
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
   {
     // Tests are plain Node running under `node --test`.
