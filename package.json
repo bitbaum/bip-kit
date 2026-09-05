@@ -1,7 +1,7 @@
 {
   "name": "bip-kit",
-  "version": "0.1.0",
-  "description": "Building in Public, as a content contract: parse markdown into typed blocks and ship a blog, roadmap, and changelog on your product site — bring your own design system.",
+  "version": "0.2.0",
+  "description": "Building in Public, as a content contract: parse markdown into typed blocks and render them with a reference React renderer (bip-kit/react) — blog, roadmap, changelog on your product site, bring your own design tokens.",
   "license": "MIT",
   "author": "Mao Nakamoto",
   "homepage": "https://github.com/bitbaum/bip-kit#readme",
@@ -20,7 +20,10 @@
     "markdown",
     "headless",
     "content",
-    "nextjs"
+    "nextjs",
+    "react",
+    "rsc",
+    "renderer"
   ],
   "type": "module",
   "sideEffects": false,
@@ -33,13 +36,23 @@
     "provenance": true
   },
   "files": [
-    "dist"
+    "dist",
+    "styles.css"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./react/mermaid": {
+      "types": "./dist/react/mermaid.d.ts",
+      "default": "./dist/react/mermaid.js"
+    },
+    "./styles.css": "./styles.css"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -54,10 +67,32 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.4.0",
+    "@types/react": "^19.2.18",
     "eslint": "^10.9.1",
     "globals": "^17.11.0",
+    "katex": "^0.16.47",
     "prettier": "^3.9.6",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "shiki": "^3.23.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.68.0"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "shiki": ">=1",
+    "mermaid": ">=10",
+    "katex": ">=0.16"
+  },
+  "peerDependenciesMeta": {
+    "shiki": {
+      "optional": true
+    },
+    "mermaid": {
+      "optional": true
+    },
+    "katex": {
+      "optional": true
+    }
   }
 }

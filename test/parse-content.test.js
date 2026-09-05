@@ -2,10 +2,26 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseContentBlocks, parseFrontmatter } from "../dist/index.js";
 
-// ── parseContentBlocks ──────────────────────────────────────────────────────
+// ── parseContentBlocks: v0.1 compatibility goldens ──────────────────────────
+//
+// v0.2 ADDS fields (heading `id`, inline `spans`/`itemSpans`) but never
+// changes the v0.1 fields. These goldens assert exactly that: after dropping
+// the additive fields, the original shapes are byte-identical. The additive
+// fields themselves are asserted in parse-content-v02.test.js.
+
+const strip = (blocks) =>
+  blocks.map((block) => {
+    const rest = { ...block };
+    delete rest.spans;
+    delete rest.itemSpans;
+    delete rest.id;
+    return rest;
+  });
+
+const parseStripped = (body) => strip(parseContentBlocks(body));
 
 test("headings: ## and ### become h2/h3, text trimmed", () => {
-  const blocks = parseContentBlocks("## Roadmap  \n### Q3 ");
+  const blocks = parseStripped("## Roadmap  \n### Q3 ");
   assert.deepEqual(blocks, [
     { type: "h2", text: "Roadmap" },
     { type: "h3", text: "Q3" },
@@ -13,7 +29,7 @@ test("headings: ## and ### become h2/h3, text trimmed", () => {
 });
 
 test("consecutive plain lines join into one paragraph", () => {
-  const blocks = parseContentBlocks("First line\nsecond line\n\nNew paragraph");
+  const blocks = parseStripped("First line\nsecond line\n\nNew paragraph");
   assert.deepEqual(blocks, [
     { type: "p", text: "First line second line" },
     { type: "p", text: "New paragraph" },
@@ -28,7 +44,7 @@ test("CRLF input parses the same as LF", () => {
 });
 
 test("unordered list collects consecutive - items", () => {
-  const blocks = parseContentBlocks("- one\n- two\n\n- three");
+  const blocks = parseStripped("- one\n- two\n\n- three");
   assert.deepEqual(blocks, [
     { type: "ul", items: ["one", "two"] },
     { type: "ul", items: ["three"] },
@@ -36,12 +52,12 @@ test("unordered list collects consecutive - items", () => {
 });
 
 test("ordered list collects consecutive numbered items", () => {
-  const blocks = parseContentBlocks("1. first\n2. second\n10. tenth");
+  const blocks = parseStripped("1. first\n2. second\n10. tenth");
   assert.deepEqual(blocks, [{ type: "ol", items: ["first", "second", "tenth"] }]);
 });
 
 test("blockquote keeps one entry per quoted line", () => {
-  const blocks = parseContentBlocks("> line one\n> line two");
+  const blocks = parseStripped("> line one\n> line two");
   assert.deepEqual(blocks, [{ type: "blockquote", text: ["line one", "line two"] }]);
 });
 
@@ -50,10 +66,9 @@ test("fenced code keeps language, inner newlines, and indentation", () => {
   assert.deepEqual(blocks, [{ type: "code", lang: "ts", text: "const a = 1;\n  indented();" }]);
 });
 
-test('mermaid fences survive as code blocks with lang "mermaid"', () => {
+test("mermaid fences are first-class mermaid blocks since v0.2", () => {
   const [block] = parseContentBlocks("```mermaid\ngraph TD; A-->B\n```");
-  assert.equal(block.type, "code");
-  assert.equal(block.lang, "mermaid");
+  assert.deepEqual(block, { type: "mermaid", code: "graph TD; A-->B" });
 });
 
 test("an unterminated fence consumes to end of input without crashing", () => {
@@ -76,7 +91,7 @@ test("GFM table needs a separator row; cells are trimmed", () => {
 });
 
 test("a pipe line without a separator row is a paragraph, not a table", () => {
-  const blocks = parseContentBlocks("| just | text |");
+  const blocks = parseStripped("| just | text |");
   assert.deepEqual(blocks, [{ type: "p", text: "| just | text |" }]);
 });
 
@@ -96,17 +111,17 @@ test("lone YouTube and Vimeo URLs become embed blocks", () => {
 });
 
 test("URLs from non-allowlisted hosts stay paragraphs", () => {
-  const blocks = parseContentBlocks("https://evil.example.com/watch?v=abc");
+  const blocks = parseStripped("https://evil.example.com/watch?v=abc");
   assert.deepEqual(blocks, [{ type: "p", text: "https://evil.example.com/watch?v=abc" }]);
 });
 
 test("a URL inside prose does not split the paragraph", () => {
-  const blocks = parseContentBlocks("Watch https://youtu.be/dQw4w9WgXcQ for context");
+  const blocks = parseStripped("Watch https://youtu.be/dQw4w9WgXcQ for context");
   assert.deepEqual(blocks, [{ type: "p", text: "Watch https://youtu.be/dQw4w9WgXcQ for context" }]);
 });
 
 test("a paragraph ends where the next block type starts, without a blank line", () => {
-  const blocks = parseContentBlocks("Some text\n- item");
+  const blocks = parseStripped("Some text\n- item");
   assert.deepEqual(blocks, [
     { type: "p", text: "Some text" },
     { type: "ul", items: ["item"] },

@@ -1,7 +1,15 @@
 import { test, before } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, readdirSync, existsSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  readdirSync,
+  existsSync,
+  symlinkSync,
+  realpathSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -19,7 +27,34 @@ import { join } from "node:path";
  * it by bare specifier from outside the repo.
  */
 
-const PUBLIC_API = ["parseContentBlocks", "parseFrontmatter", "parseVideoEmbed", "videoEmbedSrc"];
+const PUBLIC_API = [
+  "parseContentBlocks",
+  "parseFrontmatter",
+  "parseInline",
+  "parseChartSpec",
+  "slugify",
+  "createSlugger",
+  "extractToc",
+  "readingTime",
+  "parseVideoEmbed",
+  "videoEmbedSrc",
+];
+
+const REACT_API = [
+  "ArticleBody",
+  "Figure",
+  "Gallery",
+  "Callout",
+  "PullQuote",
+  "Stats",
+  "Footnotes",
+  "CodeBlock",
+  "Chart",
+  "Toc",
+  "ReadingProgress",
+  "Lightbox",
+  "VideoEmbed",
+];
 
 let workspace;
 let installed;
@@ -42,12 +77,25 @@ before(() => {
   // Each probe records failure as a *value*, never a throw. A broken exports map
   // that crashes this hook would fail every assertion in the file at once and
   // bury which entry point actually broke.
+  // The react subpath imports react/jsx-runtime — give the probe workspace the
+  // same react install this repo tests against.
+  for (const dep of ["react", "react-dom"]) {
+    symlinkSync(
+      realpathSync(join(process.cwd(), "node_modules", dep)),
+      join(workspace, "node_modules", dep),
+      "dir",
+    );
+  }
+
   writeFileSync(
     join(workspace, "probe.mjs"),
     [
       "const out = {};",
       'try { out.resolved = import.meta.resolve("bip-kit"); } catch { out.resolved = null; }',
       'try { out.exports = Object.keys(await import("bip-kit")).sort(); } catch { out.exports = null; }',
+      'try { out.reactExports = Object.keys(await import("bip-kit/react")).sort(); } catch { out.reactExports = null; }',
+      'try { out.mermaidExports = Object.keys(await import("bip-kit/react/mermaid")).sort(); } catch { out.mermaidExports = null; }',
+      'try { out.stylesResolved = import.meta.resolve("bip-kit/styles.css"); } catch { out.stylesResolved = null; }',
       "console.log(JSON.stringify(out));",
     ].join("\n"),
   );
@@ -94,4 +142,21 @@ test("the tarball carries the documentation npm will render", () => {
 test("the tarball ships built output, not raw TypeScript sources", () => {
   assert.ok(existsSync(join(installed, "dist", "index.js")), "dist/index.js missing");
   assert.ok(!existsSync(join(installed, "src")), "src/ leaked into the tarball");
+});
+
+test("the react subpath exposes the renderer API from a consumer install", () => {
+  assert.ok(probe.reactExports, 'importing "bip-kit/react" from a consumer install threw');
+  for (const name of REACT_API) {
+    assert.ok(probe.reactExports.includes(name), `"${name}" is missing from bip-kit/react`);
+  }
+});
+
+test("the mermaid island lives on its own subpath", () => {
+  assert.ok(probe.mermaidExports, 'importing "bip-kit/react/mermaid" threw');
+  assert.ok(probe.mermaidExports.includes("MermaidBlock"), "MermaidBlock missing");
+});
+
+test("styles.css is exported and shipped in the tarball", () => {
+  assert.ok(probe.stylesResolved, '"bip-kit/styles.css" did not resolve');
+  assert.ok(existsSync(join(installed, "styles.css")), "styles.css missing from the tarball");
 });
