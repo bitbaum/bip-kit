@@ -2,7 +2,12 @@ import type { ComponentType, ReactNode } from "react";
 import type { ContentBlock } from "../types.js";
 import { renderInline } from "./inline.js";
 import { parseInline } from "../inline.js";
-import { highlightCode, splitFenceInfo, CodeBlockView } from "./code-block.js";
+import {
+  highlightCode,
+  splitFenceInfo,
+  CodeBlockView,
+  type ShikiHighlighter,
+} from "./code-block.js";
 import { renderMath, MathView } from "./math.js";
 import { Chart } from "./chart.js";
 import {
@@ -38,6 +43,12 @@ export interface ArticleBodyComponents {
 export interface ArticleBodyProps {
   blocks: ContentBlock[];
   components?: ArticleBodyComponents;
+  /**
+   * A loaded shiki module (`import * as shiki from "shiki"`) for traceable
+   * highlighting in bundled/standalone deploys — the per-render alternative
+   * to calling `setHighlighterLoader` once.
+   */
+  highlighter?: ShikiHighlighter | null;
   /** Wrap figure/gallery images in the Lightbox island (default true). */
   lightbox?: boolean;
   className?: string;
@@ -46,17 +57,21 @@ export interface ArticleBodyProps {
 /** Pre-rendered HTML (shiki/katex) keyed by block identity. */
 type Enriched = WeakMap<object, string>;
 
-async function enrich(blocks: ContentBlock[], out: Enriched): Promise<void> {
+async function enrich(
+  blocks: ContentBlock[],
+  out: Enriched,
+  highlighter?: ShikiHighlighter | null,
+): Promise<void> {
   for (const block of blocks) {
     if (block.type === "code") {
       const { lang } = splitFenceInfo(block.lang);
-      const html = await highlightCode(block.text, lang);
+      const html = await highlightCode(block.text, lang, highlighter);
       if (html) out.set(block, html);
     } else if (block.type === "math") {
       const html = await renderMath(block.tex, block.display);
       if (html) out.set(block, html);
     } else if (block.type === "callout" || block.type === "footnote") {
-      await enrich(block.blocks, out);
+      await enrich(block.blocks, out, highlighter);
     }
   }
 }
@@ -191,11 +206,12 @@ function renderBlock(block: ContentBlock, ctx: RenderContext, key: number): Reac
 export async function ArticleBody({
   blocks,
   components,
+  highlighter,
   lightbox = true,
   className,
 }: ArticleBodyProps) {
   const enriched: Enriched = new WeakMap();
-  await enrich(blocks, enriched);
+  await enrich(blocks, enriched, highlighter);
   const ctx: RenderContext = { enriched, components, lightbox };
 
   const notes: FootnoteEntry[] = blocks

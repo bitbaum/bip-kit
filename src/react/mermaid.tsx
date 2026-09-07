@@ -15,8 +15,58 @@
 
 import { useEffect, useId, useRef, useSyncExternalStore } from "react";
 
+/** The one property of CanvasRenderingContext2D the normalizer needs. */
+export interface FillStyleContext {
+  fillStyle: string | CanvasGradient | CanvasPattern;
+}
+
+// Normalizes any color the browser understands down to #rrggbb / rgba().
+//
+// getComputedStyle returns a color in the space it was AUTHORED in, so a
+// token written with oklch()/lab() reads back as e.g. "oklch(0.95 0 0)" —
+// valid CSS Color 4 that Mermaid's color parser rejects outright. It threw
+// inside initialize(), which runs BEFORE render(), so render()'s .catch()
+// never fired and every diagram blanked. Canvas is the cheapest converter
+// the platform offers: assigning fillStyle round-trips through the browser's
+// own parser and reads back in a legacy form Mermaid accepts.
+//
+// Sentinel logic (pure — the ctx is injectable for tests): an unparseable
+// assignment leaves fillStyle untouched, which is the only way to tell "the
+// browser rejected it" from "it is that color". A second, different sentinel
+// disambiguates the astronomically-unlikely case where the input actually IS
+// the sentinel color.
+export function normalizeColorWith(
+  ctx: FillStyleContext | null,
+  value: string,
+  fallback: string,
+): string {
+  if (!ctx) return fallback;
+  try {
+    ctx.fillStyle = "#010203";
+    ctx.fillStyle = value;
+    const first = ctx.fillStyle;
+    if (typeof first !== "string") return fallback;
+    if (first !== "#010203") return first;
+    // first === sentinel: either rejected, or value really is #010203.
+    ctx.fillStyle = "#030201";
+    ctx.fillStyle = value;
+    return ctx.fillStyle === "#010203" ? first : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function canvasContext(): FillStyleContext | null {
+  try {
+    return document.createElement("canvas").getContext("2d");
+  } catch {
+    return null;
+  }
+}
+
 // Resolves a CSS custom property to a concrete color by letting the browser
-// compute it — keeps Mermaid in sync with the token SSOT without hardcoding.
+// compute it — keeps Mermaid in sync with the token SSOT without hardcoding —
+// then normalizes it to a legacy form Mermaid's parser accepts.
 function resolveColorVar(cssVar: string, fallback: string): string {
   if (typeof document === "undefined") return fallback;
   const el = document.createElement("span");
@@ -26,22 +76,45 @@ function resolveColorVar(cssVar: string, fallback: string): string {
   document.documentElement.appendChild(el);
   const value = getComputedStyle(el).backgroundColor;
   el.remove();
-  return value && value !== "rgba(0, 0, 0, 0)" ? value : fallback;
+  if (!value || value === "rgba(0, 0, 0, 0)") return fallback;
+  return normalizeColorWith(canvasContext(), value, fallback);
 }
 
-// Dark mode: an explicit data-theme on <html> wins; otherwise the OS.
+/**
+ * Dark-mode preference, pure over its inputs (exported for tests):
+ * an explicit `data-theme="light|dark"` wins, then a `light`/`dark` class on
+ * the root element (next-themes with `attribute="class"`, Tailwind `.dark`),
+ * then the OS. Unknown values fall through to the next signal.
+ */
+export function resolveThemePreference(input: {
+  dataTheme: string | null;
+  classList: { contains(token: string): boolean };
+  systemDark: boolean;
+}): boolean {
+  if (input.dataTheme === "light") return false;
+  if (input.dataTheme === "dark") return true;
+  if (input.classList.contains("dark")) return true;
+  if (input.classList.contains("light")) return false;
+  return input.systemDark;
+}
+
 function isDarkNow(): boolean {
-  const explicit = document.documentElement.getAttribute("data-theme");
-  if (explicit === "light") return false;
-  if (explicit === "dark") return true;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const root = document.documentElement;
+  return resolveThemePreference({
+    dataTheme: root.getAttribute("data-theme"),
+    classList: root.classList,
+    systemDark: window.matchMedia("(prefers-color-scheme: dark)").matches,
+  });
 }
 
 function subscribeDark(onChange: () => void): () => void {
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
   mq.addEventListener("change", onChange);
   const observer = new MutationObserver(onChange);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme", "class"],
+  });
   return () => {
     mq.removeEventListener("change", onChange);
     observer.disconnect();
@@ -63,19 +136,29 @@ export function MermaidBlock({ code }: { code: string }) {
       .then((m) => {
         if (cancelled) return;
         const fallback = dark ? DARK : LIGHT;
-        m.default.initialize({
+        const base = {
           startOnLoad: false,
-          theme: dark ? "dark" : "default",
-          themeVariables: {
-            background: "transparent",
-            primaryColor: resolveColorVar("--bp-surface", fallback.surface),
-            primaryTextColor: resolveColorVar("--bp-fg", fallback.text),
-            lineColor: resolveColorVar("--bp-fg-muted", fallback.line),
-            edgeLabelBackground: resolveColorVar("--bp-bg", fallback.surface),
-            clusterBkg: resolveColorVar("--bp-surface", fallback.surface),
-          },
+          theme: dark ? ("dark" as const) : ("default" as const),
           fontFamily: "inherit",
-        });
+        };
+        try {
+          m.default.initialize({
+            ...base,
+            themeVariables: {
+              background: "transparent",
+              primaryColor: resolveColorVar("--bp-surface", fallback.surface),
+              primaryTextColor: resolveColorVar("--bp-fg", fallback.text),
+              lineColor: resolveColorVar("--bp-fg-muted", fallback.line),
+              edgeLabelBackground: resolveColorVar("--bp-bg", fallback.surface),
+              clusterBkg: resolveColorVar("--bp-surface", fallback.surface),
+            },
+          });
+        } catch {
+          // A theme value Mermaid cannot parse must cost the reader the THEME,
+          // not the diagram. initialize() runs outside render()'s promise
+          // chain, so an uncaught throw here silently skipped rendering.
+          m.default.initialize(base);
+        }
         m.default
           .render(`bp-mermaid-${id}-${dark ? "d" : "l"}`, code)
           .then(({ svg }: { svg: string }) => {

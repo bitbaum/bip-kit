@@ -21,8 +21,16 @@ export {
   TableBlock,
 } from "./blocks.js";
 export type { FootnoteEntry, FigureProps } from "./blocks.js";
-export { CodeBlock, CodeBlockView, highlightCode, splitFenceInfo } from "./code-block.js";
-export type { CodeBlockViewProps } from "./code-block.js";
+export {
+  CodeBlock,
+  CodeBlockView,
+  highlightCode,
+  splitFenceInfo,
+  setHighlighterLoader,
+} from "./code-block.js";
+export type { CodeBlockViewProps, ShikiHighlighter } from "./code-block.js";
+export { setPeerLoader } from "./peers.js";
+export type { OptionalPeer, PeerImporter } from "./peers.js";
 export { MathBlock, MathView, renderMath } from "./math.js";
 export type { MathViewProps } from "./math.js";
 export { Chart } from "./chart.js";

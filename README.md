@@ -59,6 +59,8 @@ import { MermaidBlock } from "bip-kit/react/mermaid"; // requires the mermaid pe
 
 Without the override, mermaid blocks render their source in a styled `<pre>` — honest degradation, never a broken build.
 
+`MermaidBlock` follows your theme however you switch it: an explicit `data-theme="light|dark"` on `<html>` wins, then a `light`/`dark` class (next-themes with `attribute="class"`, Tailwind's `.dark`), then the OS preference — and it re-renders live on any of them changing. Diagram colors resolve from your `--bp-*` tokens and are normalized to a form mermaid's color parser accepts, so tokens authored in `oklch()`/`lab()` (Tailwind v4 palettes) render correctly instead of blanking the diagram (fixed in 0.2.1).
+
 ## The block vocabulary
 
 One syntax example per block. Everything the v0.1 parser understood still parses identically; v0.2 adds the rest of what long-form writing needs.
@@ -130,6 +132,15 @@ const x: number = 1;
 ````
 
 The first word of the fence info is the language; the rest becomes a filename label. With the `shiki` peer, blocks are highlighted **server-side once** with both themes emitted as CSS variables (`--shiki-light`/`--shiki-dark`) — dark mode is pure CSS, zero client JS. Without shiki: clean mono fallback. Copy button included either way.
+
+**Deploying with `output: "standalone"`?** Because shiki is an *optional* peer, bip-kit's zero-config load goes through an import that bundlers (and Next.js output file tracing) cannot see — a standalone deploy would silently ship without shiki and lose highlighting. Register the loader once, at module scope (e.g. in your root layout), so the literal specifier lives in *your* code where the bundler and tracer can follow it:
+
+```ts
+import { setHighlighterLoader } from "bip-kit/react";
+setHighlighterLoader(() => import("shiki")); // one line; traceable; only if you use shiki
+```
+
+Or pass a loaded module per render: `<ArticleBody blocks={blocks} highlighter={shiki} />` (with `import * as shiki from "shiki"`). Consumers without shiki write neither line — nothing to resolve, builds stay green.
 
 ### Diagrams — `mermaid`
 
@@ -229,7 +240,7 @@ Server components (RSC-first): `ArticleBody` (the one you usually need — an **
 
 Client islands (each tiny, dependency-free): `Toc` (sticky scroll-spy; hides itself under 3 headings), `ReadingProgress` (top-of-page hairline), `Lightbox` (figure/gallery zoom, Escape to close), `CopyButton`. And `MermaidBlock` on `bip-kit/react/mermaid` (theme colors resolved from your CSS vars at render time).
 
-`ArticleBody` props: `blocks`, `components` (`{ mermaid }` override), `lightbox` (default `true`), `className`.
+`ArticleBody` props: `blocks`, `components` (`{ mermaid }` override), `highlighter` (a loaded shiki module — see the code-block section), `lightbox` (default `true`), `className`.
 
 ## Theming contract
 
