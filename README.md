@@ -83,6 +83,18 @@ Body text with **bold**, *emphasis*, `code`, [links](https://example.com) and fo
 
 Every text-bearing block keeps its raw `text` AND carries `spans: Inline[]` — a parsed tree of `text | strong | em | code | link | footnoteRef` nodes. Consumers stop re-parsing `**bold**` themselves.
 
+Emphasis follows **CommonMark's flanking-delimiter rules** (since v0.2.2), so what authors type is what every other markdown reader would show them:
+
+| Markdown            | Result                          | Why                                                          |
+| ------------------- | ------------------------------- | ------------------------------------------------------------ |
+| `\*not emphasis\*`  | literal `*not emphasis*`        | backslash escapes the full ASCII punctuation set              |
+| `` `a\*b` ``        | code `a\*b`                     | code spans take no escapes — the backslash is content         |
+| `foo*bar*baz`       | `foo`·_bar_·`baz`               | `*` may open and close intraword                              |
+| `snake_case_name`   | literal `snake_case_name`       | `_` may **not** — identifiers survive untouched               |
+| `***bold italic***` | em wrapping strong              | also `___x___`, `**_x_**`, `_**x**_`                          |
+
+Anything that does not resolve — a dangling `**`, an unmatched `_` — stays literal text, exactly as before. There is still no raw HTML and no markdown dependency: this is a hand-rolled scanner over one line.
+
 ### Lists — `ul` / `ol`
 
 ```md
