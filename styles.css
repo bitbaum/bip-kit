@@ -207,10 +207,48 @@
 
 /* ── Lists ──────────────────────────────────────────────────────────── */
 
-.bp-ul,
+/* list-style-type is declared explicitly, and must stay declared: a CSS reset
+   is the normal case, not the exception. Tailwind's preflight sets
+   `ul, ol { list-style: none }`, so a stylesheet that only colors ::marker
+   styles a marker that no longer exists — every bullet and number silently
+   disappears, while the HTML stays byte-identical. That shipped to five sites
+   before a screenshot caught it; test/styles.test.js now fails if either
+   declaration goes missing again. */
+.bp-ul {
+  margin: 0 0 var(--bp-flow);
+  padding-inline-start: 1.4em;
+  list-style-type: disc;
+}
+
 .bp-ol {
   margin: 0 0 var(--bp-flow);
   padding-inline-start: 1.4em;
+  list-style-type: decimal;
+}
+
+/* Nested levels: browsers vary these off the UA sheet, which the reset also
+   removed, so they are restated rather than inherited. */
+.bp-ul .bp-ul {
+  list-style-type: circle;
+}
+
+.bp-ul .bp-ul .bp-ul {
+  list-style-type: square;
+}
+
+.bp-ol .bp-ol {
+  list-style-type: lower-alpha;
+}
+
+.bp-ol .bp-ol .bp-ol {
+  list-style-type: lower-roman;
+}
+
+/* Nested lists sit tight under their parent item rather than opening a full
+   flow gap. */
+.bp-li > .bp-ul,
+.bp-li > .bp-ol {
+  margin-block: 0.35em 0;
 }
 
 .bp-li {
@@ -705,6 +743,9 @@
 .bp-footnotes-list {
   margin: 0;
   padding-inline-start: 1.4em;
+  /* Numbered: the number IS the footnote's identity, and the padding above
+     reserves room for it. Same reset caveat as .bp-ol. */
+  list-style-type: decimal;
 }
 
 .bp-footnote {
