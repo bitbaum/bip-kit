@@ -1,23 +1,21 @@
 import type { ContentBlock, TocEntry, ReadingTimeResult } from "./types.js";
-import { slugify } from "./slug.js";
+import { createSlugger, type SlugOptions } from "./slug.js";
 
 /**
  * Table of contents from parsed blocks. Headings parsed by v0.2 carry ids;
- * for hand-built blocks without one, a slug is derived from the text
- * (per-call de-duplication, same scheme as the parser).
+ * for hand-built blocks without one, a slug is derived from the text through
+ * the same slugger the parser uses (per-call de-duplication).
+ *
+ * @param options.slugify Heading-id policy (default: ASCII `slugify`). Pass
+ *   whatever you passed to `parseContentBlocks`: an id and its TOC link are
+ *   the same anchor, so they must come from one policy.
  */
-export function extractToc(blocks: ContentBlock[]): TocEntry[] {
-  const seen = new Map<string, number>();
+export function extractToc(blocks: ContentBlock[], options: SlugOptions = {}): TocEntry[] {
+  const slug = createSlugger(options.slugify);
   const entries: TocEntry[] = [];
   for (const block of blocks) {
     if (block.type !== "h2" && block.type !== "h3" && block.type !== "h4") continue;
-    let id = block.id;
-    if (!id) {
-      const base = slugify(block.text) || "section";
-      const n = (seen.get(base) ?? 0) + 1;
-      seen.set(base, n);
-      id = n === 1 ? base : `${base}-${n}`;
-    }
+    const id = block.id || slug(block.text);
     entries.push({
       id,
       text: block.text,

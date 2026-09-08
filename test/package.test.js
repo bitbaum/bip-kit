@@ -33,6 +33,7 @@ const PUBLIC_API = [
   "parseInline",
   "parseChartSpec",
   "slugify",
+  "unicodeSlugify",
   "createSlugger",
   "extractToc",
   "readingTime",
