@@ -176,6 +176,39 @@ test("the code block clears the copy button that overlays it", () => {
   );
 });
 
+test("the copy button is visible on a device that cannot hover", () => {
+  // A touch device never enters :hover, so `opacity: 0` on .bp-copy plus a
+  // `.bp-codeblock-body:hover` reveal is not "hidden until wanted" — it is
+  // hidden forever, on every phone and tablet. The control stays in the DOM
+  // and in the accessibility tree, and stays tappable, which is worse than
+  // absent: nothing on screen says it is there. So the base rule must rest
+  // visible, and the fade-until-hover must be scoped to hover-capable
+  // pointers.
+  const copy = ruleBody(".bp-copy");
+  assert.ok(copy, ".bp-copy rule not found in styles.css");
+  assert.match(
+    copy,
+    /opacity:\s*1/,
+    "the base .bp-copy rule must rest at opacity 1 — a device with no hover " +
+      "has no way to reveal a button parked at opacity 0",
+  );
+
+  const hoverQuery = /@media\s*\(hover:\s*hover\)[^{]*\{([\s\S]*?)\n\}/.exec(css);
+  assert.ok(hoverQuery, "expected a (hover: hover) media query to hold the fade-until-hover rules");
+  assert.match(
+    hoverQuery[1],
+    /\.bp-copy\s*\{[^}]*opacity:\s*0/,
+    "hiding .bp-copy belongs INSIDE the (hover: hover) query, not outside it",
+  );
+
+  // and nothing outside that query may hide it again
+  assert.doesNotMatch(
+    css.replace(hoverQuery[0], ""),
+    /\.bp-copy\s*\{[^}]*opacity:\s*0/,
+    "a `.bp-copy { opacity: 0 }` outside the hover query re-hides the button on touch",
+  );
+});
+
 test("print reclaims the copy clearance, because print hides the copy button", () => {
   // Otherwise every code block on paper opens with a blank band nothing occupies.
   const printBlock = css.slice(css.indexOf("@media print"));
