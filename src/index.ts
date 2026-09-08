@@ -14,10 +14,11 @@ export type {
 
 export type { Inline } from "./inline.js";
 export type { ChartSpec, ChartSeries } from "./chart.js";
+export type { SlugFn, SlugOptions } from "./slug.js";
 
 export { parseContentBlocks, parseFrontmatter } from "./parse-content.js";
 export { parseInline, inlineToText } from "./inline.js";
 export { parseChartSpec, validateChartSpec } from "./chart.js";
-export { slugify, createSlugger } from "./slug.js";
+export { slugify, unicodeSlugify, createSlugger } from "./slug.js";
 export { extractToc, readingTime } from "./toc.js";
 export { parseVideoEmbed, videoEmbedSrc } from "./video-embed.js";

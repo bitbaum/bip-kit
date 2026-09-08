@@ -1,7 +1,7 @@
 import type { CalloutKind, ContentBlock } from "./types.js";
 import { parseInline } from "./inline.js";
 import { parseChartSpec } from "./chart.js";
-import { createSlugger } from "./slug.js";
+import { createSlugger, type SlugOptions } from "./slug.js";
 
 /**
  * Parse repo-authored markdown into typed blocks.
@@ -41,8 +41,12 @@ const CALLOUT_KINDS: Record<string, CalloutKind> = {
   DANGER: "danger",
 };
 
-export function parseContentBlocks(body: string): ContentBlock[] {
-  const slug = createSlugger();
+/**
+ * @param options.slugify Heading-id policy (default: ASCII `slugify`).
+ *   Pass the SAME policy to `extractToc` — see `SlugOptions`.
+ */
+export function parseContentBlocks(body: string, options: SlugOptions = {}): ContentBlock[] {
+  const slug = createSlugger(options.slugify);
   return parseBlocks(body.replace(/\r\n/g, "\n").split("\n"), slug);
 }
 

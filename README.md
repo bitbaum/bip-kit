@@ -73,7 +73,7 @@ One syntax example per block. Everything the v0.1 parser understood still parses
 #### Detail       → h4
 ```
 
-Headings carry a slugified, de-duplicated, umlaut-aware `id` (`## Über uns` → `ueber-uns`) — anchors and TOC for free.
+Headings carry a slugified, de-duplicated `id` (`## Über uns` → `ueber-uns`) — anchors and TOC for free. Which slug you get is a [policy you choose](#slug-policy).
 
 ### Paragraphs & inline markup — `p`
 
@@ -235,7 +235,27 @@ authors:
 ---
 ```
 
-`parseFrontmatter` is still dependency-free `key: value` parsing — v0.2 adds inline `[a, b]` arrays and block `- item` lists. Scalar values parse exactly as before.
+**`parseFrontmatter` is a `key: value` scanner, not a YAML parser.** It is dependency-free on purpose and handles exactly three shapes: scalar `key: value`, inline `key: [a, b]`, and block `- item` lists. Every value comes back as a `string` or `string[]` — nothing else.
+
+It will get real YAML wrong, quietly:
+
+```md
+title: "Bitcoin: a peer-to-peer system" → "Bitcoin"   ← splits on the FIRST colon
+draft: true                             → "true"      ← the string, not a boolean
+order: 3                                → "3"         ← the string, not a number
+author:                                                ← nesting is not supported
+  name: Mao
+```
+
+If your frontmatter has quoted strings containing colons, booleans, numbers, dates, or nesting, use a real YAML parser — [`gray-matter`](https://www.npmjs.com/package/gray-matter) is what kivvi keeps in front of bip-kit for exactly this — and hand the `body` it returns to `parseContentBlocks`:
+
+```ts
+import matter from "gray-matter";
+const { data: meta, content: body } = matter(raw);
+const blocks = parseContentBlocks(body);
+```
+
+bip-kit will not grow a YAML parser; one already exists.
 
 ## Helpers
 
@@ -244,6 +264,40 @@ extractToc(blocks);   // → { id, text, level }[]   (h2/h3/h4)
 readingTime(blocks);  // → { words, minutes }      (200 wpm, min 1)
 parseInline(text);    // → Inline[]                (the inline parser, standalone)
 slugify("Über uns");  // → "ueber-uns"
+```
+
+## Slug policy
+
+A slug policy is your site's **anchor contract**. `## Das Geschäftsmodell` becomes `<h2 id="…">`, and that id is the `#anchor` in every link anyone has ever shared to that section.
+
+> [!WARNING]
+> **Changing the policy on a published site renames every anchor.** Inbound links, bookmarks, and cross-post references to `#…` break silently — nothing 404s, readers just land at the top of the page. Choose a policy once, before you publish; treat a later change as a URL migration needing redirects.
+
+Because of that, bip-kit's default never moves. Two policies ship:
+
+| Policy                  | `Geschäftsmodell` → | `日本語` →  | For                                             |
+| ----------------------- | ------------------- | ----------- | ----------------------------------------------- |
+| `slugify` **(default)** | `geschaeftsmodell`  | `section`   | ASCII anchors; German transliteration (ä→ae, ß→ss) |
+| `unicodeSlugify`        | `geschäftsmodell`   | `日本語`    | Multilingual sites keeping non-Latin anchors    |
+
+Non-Latin headings have no ASCII spelling, so under the default they strip to nothing and fall back to `section`, `section-2`, … That is the reason `unicodeSlugify` exists.
+
+Pass a policy through the `slugify` option — **to both calls**, since an id and the TOC link pointing at it are the same anchor:
+
+```ts
+import { parseContentBlocks, extractToc, unicodeSlugify } from "bip-kit";
+
+const options = { slugify: unicodeSlugify };
+const blocks = parseContentBlocks(body, options);
+const toc = extractToc(blocks, options); // same policy, or the two drift apart
+```
+
+Any `SlugFn` (`(text: string) => string`) works, so you can compose rather than reimplement — de-duplication (`slug`, `slug-2`, …) and the `section` fallback for empty results are applied on top of whatever you return:
+
+```ts
+import { slugify, type SlugFn } from "bip-kit";
+
+const prefixed: SlugFn = (text) => `sec-${slugify(text)}`;
 ```
 
 ## The renderer — `bip-kit/react`
