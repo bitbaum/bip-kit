@@ -26,6 +26,18 @@
   --bp-radius: 12px;
   --bp-radius-sm: 6px;
 
+  /* Vertical room reserved at the top of a code block for the copy button,
+     which overlays it opaquely. The reservation has to be VERTICAL: the <pre>
+     scrolls horizontally, so trailing padding is laid out past the end of the
+     content and a long opening line still runs under a button parked at the
+     right edge — at scrollLeft: 0, which is where a reader starts. Moving the
+     text down is the only reservation horizontal scrolling cannot undo, and it
+     costs no code width (the mobile column stays 324px, not 252px).
+     Must clear `.bp-copy`'s `top` offset plus its own height: measured live at
+     8px + 29.6px = 37.6px, so 2.75rem (44px) leaves ~6px of slack.
+     test/styles.test.js fails if this drops below what the button occupies. */
+  --bp-copy-clearance: 2.75rem;
+
   /* Core colors (light) */
   --bp-bg: #fdfdfc;
   --bp-surface: #f4f4f2;
@@ -471,6 +483,10 @@
 .bp-codeblock-highlighted pre {
   margin: 0;
   padding: 1rem;
+  /* Start the code below the copy button rather than beside it — the button is
+     an opaque overlay, so anything reaching under it is simply hidden.
+     See --bp-copy-clearance for why this is padding-top and not padding-right. */
+  padding-top: var(--bp-copy-clearance);
   overflow-x: auto;
   font-family: var(--bp-font-mono);
   font-size: 0.82em;
@@ -878,6 +894,9 @@
   .bp-pre,
   .bp-codeblock-highlighted pre {
     white-space: pre-wrap;
+    /* .bp-copy is display:none above, so the clearance it reserved would print
+       as a blank band at the top of every code block. */
+    padding-top: 1rem;
   }
 
   .bp-link[href^="http"]::after {
