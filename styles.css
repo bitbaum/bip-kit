@@ -520,6 +520,15 @@
   color: var(--shiki-dark);
 }
 
+/* Rests VISIBLE. Fading the button in on hover is an enhancement for pointers
+   that can hover, and it has to stay inside the query below — a touch device
+   never enters a hover state, so `opacity: 0` plus a `:hover` reveal pinned
+   the control at zero for the entire mobile web: in the DOM, in the
+   accessibility tree, tappable, and invisible to the person holding the
+   phone. Measured at 390x844 with hasTouch on live kivvi and aoz-housing
+   pages: computed opacity 0 on every code block, with no gesture able to
+   change it. The clearance above (--bp-copy-clearance) is unconditional, so
+   a permanently-visible button still covers no code. */
 .bp-copy {
   position: absolute;
   top: 0.5rem;
@@ -533,14 +542,20 @@
   font-family: var(--bp-font-sans);
   font-size: 0.72rem;
   cursor: pointer;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 120ms ease;
 }
 
-.bp-codeblock-body:hover .bp-copy,
-.bp-copy:focus-visible,
-.bp-copy[data-copied] {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .bp-copy {
+    opacity: 0;
+  }
+
+  .bp-codeblock-body:hover .bp-copy,
+  .bp-copy:focus-visible,
+  .bp-copy[data-copied] {
+    opacity: 1;
+  }
 }
 
 .bp-copy[data-copied] {
