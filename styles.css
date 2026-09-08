@@ -26,6 +26,25 @@
   --bp-radius: 12px;
   --bp-radius-sm: 6px;
 
+  /* Top space reserved for the copy button, which overlays the code it copies
+     with an opaque background — so whatever it covers is simply not readable.
+     Measured on live pages: 3 of 4 blocks on one orangecat article at 1440px,
+     and 4 of 4 at 390px, had ~1800px² of code painted underneath.
+
+     Why the clearance is VERTICAL. Trailing padding on the <pre> does nothing:
+     padding on a scroll container is laid out past the END of the scrollable
+     content, so a line wider than the viewport still runs under the button at
+     scrollLeft 0 (verified — it fixed 0 of 7 affected blocks). Narrowing the
+     non-scrolling wrapper instead does work, by clipping the <pre> short of the
+     button, but costs 5rem of code width on every line and hurts most at 390px
+     where code is already scrolling. Starting the text below the button costs
+     28px of height once per block and leaves the reading width intact.
+
+     Must clear `.bp-copy`'s `top` offset plus the button's own height (measured
+     30px across the fleet's font stacks); 2.75rem leaves ~6px of slack.
+     test/styles.test.js fails if this drops below what the button occupies. */
+  --bp-copy-clearance: 2.75rem;
+
   /* Core colors (light) */
   --bp-bg: #fdfdfc;
   --bp-surface: #f4f4f2;
@@ -471,6 +490,9 @@
 .bp-codeblock-highlighted pre {
   margin: 0;
   padding: 1rem;
+  /* Start the code below the copy button, which overlays this element opaquely.
+     See --bp-copy-clearance. */
+  padding-top: var(--bp-copy-clearance);
   overflow-x: auto;
   font-family: var(--bp-font-mono);
   font-size: 0.82em;
@@ -878,6 +900,9 @@
   .bp-pre,
   .bp-codeblock-highlighted pre {
     white-space: pre-wrap;
+    /* .bp-copy is display:none above, so the clearance it reserved would just be
+       a blank band at the top of every code block on paper. */
+    padding-top: 1rem;
   }
 
   .bp-link[href^="http"]::after {
