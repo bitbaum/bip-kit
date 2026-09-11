@@ -26,25 +26,6 @@
   --bp-radius: 12px;
   --bp-radius-sm: 6px;
 
-  /* Top space reserved for the copy button, which overlays the code it copies
-     with an opaque background — so whatever it covers is simply not readable.
-     Measured on live pages: 3 of 4 blocks on one orangecat article at 1440px,
-     and 4 of 4 at 390px, had ~1800px² of code painted underneath.
-
-     Why the clearance is VERTICAL. Trailing padding on the <pre> does nothing:
-     padding on a scroll container is laid out past the END of the scrollable
-     content, so a line wider than the viewport still runs under the button at
-     scrollLeft 0 (verified — it fixed 0 of 7 affected blocks). Narrowing the
-     non-scrolling wrapper instead does work, by clipping the <pre> short of the
-     button, but costs 5rem of code width on every line and hurts most at 390px
-     where code is already scrolling. Starting the text below the button costs
-     28px of height once per block and leaves the reading width intact.
-
-     Must clear `.bp-copy`'s `top` offset plus the button's own height (measured
-     30px across the fleet's font stacks); 2.75rem leaves ~6px of slack.
-     test/styles.test.js fails if this drops below what the button occupies. */
-  --bp-copy-clearance: 2.75rem;
-
   /* Core colors (light) */
   --bp-bg: #fdfdfc;
   --bp-surface: #f4f4f2;
@@ -474,25 +455,44 @@
   overflow: hidden;
 }
 
+/* The toolbar row — filename label (optional) and the copy button — sits ABOVE
+   the code, in normal flow. It is not an overlay.
+
+   History, so nobody puts it back: the button used to be `position: absolute`
+   over the <pre>, and the <pre> reserved a padding-top for it. That reservation
+   was a magic number: it assumed the button's rendered height (30px across the
+   fleet's font stacks). A consumer whose accessibility CSS sets
+   `button { min-height: 2.75rem }` under `(pointer: coarse)` — the fleet's own
+   44px touch-target rule — grew the button to 44px, past the band reserved for
+   it, and it covered the opening line of code again (measured on fleetcrown at
+   390x844: button bottom at 52px, first code line at 46px). Any fixed
+   clearance is one consumer rule away from the same failure. In flow, layout
+   pays for the button's height whatever a consumer sizes it to, so code can
+   never sit under it. test/styles.test.js fails if .bp-copy leaves the flow. */
+.bp-codeblock-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.5rem 0.5rem 0 1rem;
+}
+
 .bp-codeblock-filename {
-  padding: 0.5rem 1rem;
+  /* Left of the button; the button keeps its place at the right edge. */
+  margin-inline-end: auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-family: var(--bp-font-mono);
   font-size: 0.75em;
   color: var(--bp-fg-muted);
-  border-bottom: 1px solid var(--bp-border);
-}
-
-.bp-codeblock-body {
-  position: relative;
 }
 
 .bp-pre,
 .bp-codeblock-highlighted pre {
   margin: 0;
-  padding: 1rem;
-  /* Start the code below the copy button, which overlays this element opaquely.
-     See --bp-copy-clearance. */
-  padding-top: var(--bp-copy-clearance);
+  padding: 0.5rem 1rem 1rem;
   overflow-x: auto;
   font-family: var(--bp-font-mono);
   font-size: 0.82em;
@@ -527,13 +527,13 @@
    accessibility tree, tappable, and invisible to the person holding the
    phone. Measured at 390x844 with hasTouch on live kivvi and aoz-housing
    pages: computed opacity 0 on every code block, with no gesture able to
-   change it. The clearance above (--bp-copy-clearance) is unconditional, so
-   a permanently-visible button still covers no code. */
+   change it.
+
+   In flow, inside .bp-codeblock-toolbar — never positioned out of it (see the
+   toolbar comment). Fading is opacity only: an invisible button still holds
+   its place, so the toolbar keeps its height and nothing jumps on reveal. */
 .bp-copy {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 1;
+  flex: none;
   padding: 0.25rem 0.6rem;
   border: 1px solid var(--bp-border);
   border-radius: var(--bp-radius-sm);
@@ -551,7 +551,7 @@
     opacity: 0;
   }
 
-  .bp-codeblock-body:hover .bp-copy,
+  .bp-codeblock:hover .bp-copy,
   .bp-copy:focus-visible,
   .bp-copy[data-copied] {
     opacity: 1;
@@ -912,11 +912,16 @@
     break-after: avoid;
   }
 
+  /* .bp-copy is display:none above. Without a filename the toolbar is then
+     empty, and its top padding would be a blank band on every code block on
+     paper — drop it, so an empty toolbar collapses to nothing. */
+  .bp-codeblock-toolbar {
+    padding-top: 0;
+  }
+
   .bp-pre,
   .bp-codeblock-highlighted pre {
     white-space: pre-wrap;
-    /* .bp-copy is display:none above, so the clearance it reserved would just be
-       a blank band at the top of every code block on paper. */
     padding-top: 1rem;
   }
 

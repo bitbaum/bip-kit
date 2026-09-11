@@ -10,6 +10,7 @@ import {
   Lightbox,
   CopyButton,
   CodeBlock,
+  CodeBlockView,
   Chart,
   VideoEmbed,
 } from "../dist/react/index.js";
@@ -168,6 +169,72 @@ test("standalone CodeBlock highlights with shiki when present", async () => {
   const html = renderToString(await CodeBlock({ block: { lang: "js", text: "const a = 1;" } }));
   assert.match(html, /bp-codeblock-highlighted/);
   assert.match(html, /--shiki-light/);
+});
+
+/**
+ * The copy button's toolbar must come BEFORE the code, as a sibling of it, not
+ * on top of it. The stylesheet guard (test/styles.test.js) proves the button
+ * is in flow; this proves the flow puts it above the code rather than below
+ * or inside the <pre>, for both render paths and with or without a filename.
+ */
+function assertToolbarAboveCode(html, { filename } = {}) {
+  const body = html.indexOf('<div class="bp-codeblock-body">');
+  assert.ok(body >= 0, "no .bp-codeblock-body in the rendered HTML");
+  const toolbarOpen = html.indexOf('<div class="bp-codeblock-toolbar">', body);
+  assert.ok(toolbarOpen >= 0, "no .bp-codeblock-toolbar in the rendered HTML");
+  // The toolbar holds only a span and a button, so its first </div> closes it.
+  const toolbarClose = html.indexOf("</div>", toolbarOpen);
+  const pre = html.indexOf("<pre", body);
+  assert.ok(pre >= 0, "no <pre> in the rendered HTML");
+  assert.ok(
+    toolbarClose < pre,
+    "the toolbar must close before the <pre> opens — it precedes the code as a sibling, " +
+      "it does not wrap it and it does not follow it",
+  );
+  const copy = html.indexOf('class="bp-copy"', body);
+  assert.ok(
+    copy > toolbarOpen && copy < toolbarClose,
+    "the copy button must be inside the toolbar, not loose beside the code",
+  );
+  assert.equal(html.indexOf('class="bp-copy"', copy + 1), -1, "exactly one copy button");
+  assert.equal(
+    html.indexOf("<figcaption", body),
+    -1,
+    "the filename is a toolbar label, not a figcaption",
+  );
+  const label = html.indexOf('class="bp-codeblock-filename"', body);
+  if (filename) {
+    assert.ok(
+      label > toolbarOpen && label < copy,
+      `the filename label "${filename}" sits in the toolbar, before the copy button`,
+    );
+    assert.ok(html.slice(label, toolbarClose).includes(filename));
+  } else {
+    assert.equal(label, -1, "no filename label without a filename");
+  }
+}
+
+test("plain code block: the copy toolbar precedes the <pre> as a sibling", () => {
+  const plain = renderToString(createElement(CodeBlockView, { code: "const a = 1;", lang: "js" }));
+  assert.match(plain, /<pre class="bp-pre">/);
+  assertToolbarAboveCode(plain);
+
+  const named = renderToString(
+    createElement(CodeBlockView, { code: "const a = 1;", lang: "js", filename: "src/a.js" }),
+  );
+  assertToolbarAboveCode(named, { filename: "src/a.js" });
+});
+
+test("highlighted code block: the copy toolbar precedes the <pre> as a sibling", async () => {
+  const plain = renderToString(await CodeBlock({ block: { lang: "js", text: "const a = 1;" } }));
+  assert.match(plain, /bp-codeblock-highlighted/);
+  assertToolbarAboveCode(plain);
+
+  const named = renderToString(
+    await CodeBlock({ block: { lang: "js src/a.js", text: "const a = 1;" } }),
+  );
+  assert.match(named, /bp-codeblock-highlighted/);
+  assertToolbarAboveCode(named, { filename: "src/a.js" });
 });
 
 test("Toc renders 3+ entries with level classes, hides under 3", () => {

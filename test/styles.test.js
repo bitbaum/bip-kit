@@ -80,32 +80,18 @@ test("::marker styling is paired with a marker that exists", () => {
 });
 
 /**
- * The copy button is an opaque overlay sitting on the code it copies. Nothing
- * in the DOM says so — the button and the <pre> are siblings, so every render
- * test passes while the opening line of code is hidden underneath. Found by
- * screenshotting live pages: at 1440px, 3 of 4 blocks on one orangecat article
- * had ~1869px² of code painted under the button; at 390px, 4 of 4 did.
- *
- * The invariant: an overlay control inside the code block must be paid for in
- * clearance, and the clearance must be on the axis the button cannot be scrolled
- * along. `.bp-copy` is pinned to the block's top-right. Horizontal padding on
- * the <pre> buys nothing — a scroll container lays its padding out past the END
- * of the content, so a long line still runs under the button at scrollLeft 0.
- * Vertical clearance is what holds: text that starts below the button stays
- * below it at every scroll offset.
+ * The copy button lives in a toolbar row ABOVE the code, in normal flow. It
+ * used to be an absolutely positioned overlay on the <pre>, paid for by a
+ * fixed padding-top the <pre> reserved (--bp-copy-clearance, 2.75rem). That
+ * was a magic number: it assumed the button's rendered height. A consumer
+ * whose accessibility CSS enlarges buttons on coarse pointers (the fleet's own
+ * `button { min-height: 2.75rem }` touch-target rule) grew it to 44px, past the
+ * reserved band, and the button covered the opening line of code again —
+ * measured on fleetcrown at 390x844. Any fixed clearance is one consumer rule
+ * away from the same failure, and nothing in the rendered HTML changes when
+ * it fails. So the invariant is structural, not numeric: the button stays in
+ * flow, and the number that pretended to pay for it stays gone.
  */
-const REM = 16;
-/** Rendered `.bp-copy` height across the fleet's font stacks, measured live. */
-const COPY_BUTTON_HEIGHT_PX = 30;
-
-/** A length in px, from a `1rem` / `16px` style declaration. */
-function lengthPx(value) {
-  const m = String(value)
-    .trim()
-    .match(/^(-?[\d.]+)(rem|px|em)$/);
-  if (!m) return null;
-  return m[2] === "px" ? Number(m[1]) : Number(m[1]) * REM;
-}
 
 function declaration(body, prop) {
   // Strip comments first: a rationale comment sitting between two declarations
@@ -114,6 +100,54 @@ function declaration(body, prop) {
   const m = bare?.match(new RegExp(`(?:^|;)\\s*${prop}\\s*:\\s*([^;]+)`));
   return m ? m[1].trim() : null;
 }
+
+/** Every rule body whose selector list mentions the class, comments stripped. */
+function ruleBodiesMentioning(cls) {
+  const bare = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const escaped = cls.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return [
+    ...bare.matchAll(new RegExp(`(?:^|\\}|\\{)\\s*([^{}]*${escaped}[^{}]*)\\{([^}]*)\\}`, "g")),
+  ].map((m) => ({ selector: m[1].trim(), body: m[2] }));
+}
+
+test("the copy button stays in normal flow — never positioned over the code", () => {
+  const rules = ruleBodiesMentioning(".bp-copy");
+  assert.ok(rules.length > 0, "no rule for .bp-copy found in styles.css");
+  for (const { selector, body } of rules) {
+    const position = declaration(body, "position");
+    assert.ok(
+      position === null || /^(static|relative)$/.test(position),
+      `\`${selector}\` sets position: ${position} — that takes the copy button out of ` +
+        "flow and puts it back over the code, where its height (which a consumer's " +
+        "CSS decides, not this stylesheet) is no longer paid for by layout",
+    );
+  }
+});
+
+test("the toolbar that holds the copy button is a flow row above the code", () => {
+  const toolbar = ruleBody(".bp-codeblock-toolbar");
+  assert.ok(toolbar, ".bp-codeblock-toolbar rule not found in styles.css");
+  assert.equal(declaration(toolbar, "display"), "flex", "the toolbar lays out as a flex row");
+  const position = declaration(toolbar, "position");
+  assert.ok(
+    position === null || /^(static|relative)$/.test(position),
+    "the toolbar itself must stay in flow — positioning it recreates the overlay one level up",
+  );
+});
+
+test("the clearance magic number is gone and stays gone", () => {
+  // The old fix reserved a fixed band on the <pre> for the button. Reintroducing
+  // it — under this name or by hand — means someone put the button back on top
+  // of the code and is guessing its height again.
+  assert.doesNotMatch(css, /--bp-copy-clearance/, "--bp-copy-clearance was deleted in 0.2.7");
+  const pre = ruleBodyOf(".bp-pre", ".bp-codeblock-highlighted pre");
+  assert.ok(pre, "the code scroller rule was not found in styles.css");
+  assert.equal(
+    declaration(pre, "padding-top"),
+    null,
+    "the code scroller reserves no padding-top for a button — the button is in flow above it",
+  );
+});
 
 /**
  * Like ruleBody, but tolerant of how the selector list is wrapped — the code
@@ -127,54 +161,6 @@ function ruleBodyOf(...selectors) {
   const match = css.match(new RegExp(`(?:^|\\})\\s*${pattern}\\s*\\{([^}]*)\\}`, "m"));
   return match ? match[1] : null;
 }
-
-/** The clearance token, resolved from :root. */
-function clearancePx() {
-  return lengthPx(declaration(ruleBody(":root"), "--bp-copy-clearance"));
-}
-
-test("the code block clears the copy button that overlays it", () => {
-  const copy = ruleBody(".bp-copy");
-  assert.ok(copy, ".bp-copy rule not found in styles.css");
-  assert.match(
-    copy,
-    /position:\s*absolute/,
-    "this guard assumes .bp-copy overlays the code; if it stops overlaying, " +
-      "the clearance below is obsolete and this test should be rewritten",
-  );
-
-  const topOffset = lengthPx(declaration(copy, "top"));
-  assert.ok(
-    topOffset !== null,
-    ".bp-copy must declare a resolvable `top` offset — the clearance is computed from it",
-  );
-
-  const pre = ruleBodyOf(".bp-pre", ".bp-codeblock-highlighted pre");
-  assert.ok(pre, "the code scroller rule was not found in styles.css");
-
-  const reserved = declaration(pre, "padding-top");
-  assert.ok(
-    reserved,
-    "the code scroller declares no padding-top — with symmetric padding the " +
-      "opening line renders under the copy button. Note that padding-RIGHT does " +
-      "not substitute: a scroll container lays that out past the end of the " +
-      "content, so long lines still pass beneath the button at scrollLeft 0.",
-  );
-
-  // Named token so both halves stay legible; resolve it either way.
-  const clearance = /var\(--bp-copy-clearance\)/.test(reserved)
-    ? clearancePx()
-    : lengthPx(reserved);
-  assert.ok(clearance !== null, `could not resolve the clearance from "${reserved}"`);
-
-  const needed = topOffset + COPY_BUTTON_HEIGHT_PX;
-  assert.ok(
-    clearance >= needed,
-    `code starts ${clearance}px from the top but the button occupies ${needed}px ` +
-      `(top: ${topOffset}px + ${COPY_BUTTON_HEIGHT_PX}px of button). ` +
-      "The opening line would render underneath it.",
-  );
-});
 
 test("the copy button is visible on a device that cannot hover", () => {
   // A touch device never enters :hover, so `opacity: 0` on .bp-copy plus a
@@ -209,18 +195,17 @@ test("the copy button is visible on a device that cannot hover", () => {
   );
 });
 
-test("print reclaims the copy clearance, because print hides the copy button", () => {
+test("print hides the copy button and collapses the toolbar it leaves empty", () => {
   // Otherwise every code block on paper opens with a blank band nothing occupies.
   const printBlock = css.slice(css.indexOf("@media print"));
   assert.match(printBlock, /\.bp-copy[^{]*\{[^}]*display:\s*none/, "print must hide .bp-copy");
-  const printPre = printBlock.match(
-    /\.bp-pre,\s*\.bp-codeblock-highlighted pre\s*\{([^}]*)\}/,
-  )?.[1];
-  assert.ok(printPre, "print block does not restyle the code scroller");
-  const reclaimed = lengthPx(declaration(printPre, "padding-top"));
-  assert.ok(
-    reclaimed !== null && reclaimed < clearancePx(),
-    "print must reduce padding-top — the button it reserved space for is hidden",
+  const toolbar = printBlock.match(/\.bp-codeblock-toolbar\s*\{([^}]*)\}/)?.[1];
+  assert.ok(toolbar, "print block does not restyle .bp-codeblock-toolbar");
+  assert.match(
+    declaration(toolbar, "padding-top") ?? "",
+    /^0(px|rem)?$/,
+    "print must zero the toolbar's padding-top — with the button hidden and no filename, " +
+      "that padding is all the toolbar is",
   );
 });
 
