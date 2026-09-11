@@ -145,6 +145,8 @@ const x: number = 1;
 
 The first word of the fence info is the language; the rest becomes a filename label. With the `shiki` peer, blocks are highlighted **server-side once** with both themes emitted as CSS variables (`--shiki-light`/`--shiki-dark`) — dark mode is pure CSS, zero client JS. Without shiki: clean mono fallback. Copy button included either way.
 
+The filename label and the copy button share a toolbar row (`.bp-codeblock-toolbar`) **above** the code, in normal flow — since 0.2.7. Earlier versions overlaid the button on the `<pre>` and reserved a fixed band for it, which broke the moment a consumer's own CSS made buttons taller (a `min-height: 2.75rem` touch-target rule on coarse pointers, say). In flow, the button can be any height your stylesheet gives it and never covers code. On hover-capable pointers the button rests faded and reveals on hover/focus; on touch it is always visible.
+
 **Deploying with `output: "standalone"`?** Because shiki is an *optional* peer, bip-kit's zero-config load goes through an import that bundlers (and Next.js output file tracing) cannot see — a standalone deploy would silently ship without shiki and lose highlighting. Register the loader once, at module scope (e.g. in your root layout), so the literal specifier lives in *your* code where the bundler and tracer can follow it:
 
 ```ts

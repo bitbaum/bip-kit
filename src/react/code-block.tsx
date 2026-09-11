@@ -73,13 +73,27 @@ export interface CodeBlockViewProps {
   html?: string | null;
 }
 
-/** Synchronous view — usable directly once highlighting has been awaited. */
+/**
+ * Synchronous view — usable directly once highlighting has been awaited.
+ *
+ * The copy button sits in a toolbar row ABOVE the code, in normal flow. It
+ * used to be absolutely positioned over the <pre>, with the <pre> reserving a
+ * fixed padding-top for it — which assumed the button's height. A consumer
+ * whose accessibility CSS enlarges every `button` on coarse pointers (the
+ * fleet's own 44px touch-target rule) grew the button past the reserved band
+ * and it covered the opening line of code again. In flow, the button's height
+ * is paid for by layout, whatever a consumer sizes it to. The toolbar precedes
+ * the code in DOM order, so keyboard and screen-reader users reach "copy"
+ * before the thing it copies.
+ */
 export function CodeBlockView({ code, lang, filename, html }: CodeBlockViewProps) {
   return (
     <figure className="bp-codeblock" data-lang={lang || undefined}>
-      {filename ? <figcaption className="bp-codeblock-filename">{filename}</figcaption> : null}
       <div className="bp-codeblock-body">
-        <CopyButton text={code} />
+        <div className="bp-codeblock-toolbar">
+          {filename ? <span className="bp-codeblock-filename">{filename}</span> : null}
+          <CopyButton text={code} />
+        </div>
         {html ? (
           <div className="bp-codeblock-highlighted" dangerouslySetInnerHTML={{ __html: html }} />
         ) : (
