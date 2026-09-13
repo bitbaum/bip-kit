@@ -87,7 +87,7 @@ test("::marker styling is paired with a marker that exists", () => {
  * whose accessibility CSS enlarges buttons on coarse pointers (the fleet's own
  * `button { min-height: 2.75rem }` touch-target rule) grew it to 44px, past the
  * reserved band, and the button covered the opening line of code again —
- * measured on fleetcrown at 390x844. Any fixed clearance is one consumer rule
+ * measured on loki at 390x844. Any fixed clearance is one consumer rule
  * away from the same failure, and nothing in the rendered HTML changes when
  * it fails. So the invariant is structural, not numeric: the button stays in
  * flow, and the number that pretended to pay for it stays gone.

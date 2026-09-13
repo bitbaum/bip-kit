@@ -365,7 +365,7 @@ This kit is for **product/company** building-in-public. User-generated blogs bel
 
 ## Used in production
 
-Extracted from, and dogfooded by, [FleetCrown](https://fleetcrown.com) (its Thoughts/blog, roadmap, and changelog) and AOZ Wohnen before it was ever a package.
+Extracted from, and dogfooded by, [Loki](https://loki.com) (its Thoughts/blog, roadmap, and changelog) and AOZ Wohnen before it was ever a package.
 
 ## License
 
