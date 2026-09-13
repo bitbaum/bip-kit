@@ -10,7 +10,7 @@
  *   <ArticleBody blocks={blocks} components={{ mermaid: MermaidBlock }} />
  *
  * Theme colors resolve from the bp-* CSS vars at render time (ported from
- * fleetcrown's MermaidDiagram), so diagrams follow the consumer's tokens.
+ * loki's MermaidDiagram), so diagrams follow the consumer's tokens.
  */
 
 import { useEffect, useId, useRef, useSyncExternalStore } from "react";

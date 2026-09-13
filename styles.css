@@ -464,7 +464,7 @@
    fleet's font stacks). A consumer whose accessibility CSS sets
    `button { min-height: 2.75rem }` under `(pointer: coarse)` — the fleet's own
    44px touch-target rule — grew the button to 44px, past the band reserved for
-   it, and it covered the opening line of code again (measured on fleetcrown at
+   it, and it covered the opening line of code again (measured on loki at
    390x844: button bottom at 52px, first code line at 46px). Any fixed
    clearance is one consumer rule away from the same failure. In flow, layout
    pays for the button's height whatever a consumer sizes it to, so code can
