@@ -68,7 +68,14 @@ export function Toc({
               active === item.id ? " bp-toc-item--active" : ""
             }`}
           >
-            <a href={`#${item.id}`}>{item.text}</a>
+            <a
+              href={`#${item.id}`}
+              // The highlight is a class; this is what a screen reader hears.
+              // "location", not "page": these are anchors within one page.
+              aria-current={active === item.id ? "location" : undefined}
+            >
+              {item.text}
+            </a>
           </li>
         ))}
       </ul>
