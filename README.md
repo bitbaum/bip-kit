@@ -1,5 +1,28 @@
 # bip-kit — Building in Public
 
+## Canonical development records
+
+`loadDevelopmentProfile(mapUrl, slug)` reads the selected public profile from a
+remote `{ projects: [...] }` map. `DevelopmentPage` from `bip-kit/react` renders
+its roadmap or changelog with the same responsive layout, source links and
+failure states on every product. Import `bip-kit/styles.css` and override its
+CSS variables to match the host product. No product names or service hosts are
+stored in this package.
+
+```tsx
+import { loadDevelopmentProfile } from "bip-kit";
+import { DevelopmentPage } from "bip-kit/react";
+import "bip-kit/styles.css";
+
+const profile = await loadDevelopmentProfile(publicMapUrl, projectSlug);
+return <DevelopmentPage profile={profile} section="roadmap" profileHref={publicProfileUrl} />;
+```
+
+The producer is fetched with an eight-second timeout and no stored fallback.
+Unavailable data says unavailable; an empty history says empty. Private fields
+are excluded from the projection. Labels and navigation URLs are overridable
+for localisation; operator-authored canonical record text is left unchanged.
+
 **Blog · Roadmap · Changelog** for product sites — one content contract, one reference renderer, instead of five blog stacks.
 
 You want to build in public. What you don't want is a CMS, a markdown pipeline, three renderers, and a security review every time a product site needs a blog. bip-kit is the small, sharp core of that stack:
