@@ -393,3 +393,9 @@ Extracted from, and dogfooded by, [Loki](https://loki.com) (its Thoughts/blog, r
 ## License
 
 MIT
+
+---
+
+Part of **[bitbaum](https://bitbaum.orangecat.ch)** — AI-native products on open
+infrastructure, built in Zürich. Every package here lists the apps that use it:
+**[which apps use bip-kit](https://bitbaum.orangecat.ch/packages/#bip-kit)**.
