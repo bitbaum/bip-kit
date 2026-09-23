@@ -34,6 +34,40 @@ test("canonical projection selects the project, excludes private fields and boun
     null,
   );
 });
+test("fleet map roadmap milestones retain completion state and source provenance", () => {
+  const fleetRecord = {
+    ...record,
+    roadmap: [
+      {
+        title: "Ship a reusable renderer",
+        status: "active",
+        progress: 50,
+        targetDate: "2026-10-01",
+        milestones: [
+          { title: "Contract test passes", done: true },
+          { title: "Docs updated", done: false },
+        ],
+        source: "https://github.com/bitbaum/fleet/issues/1",
+      },
+    ],
+  };
+  const profile = developmentProfileFromMap({ projects: [fleetRecord] }, "test");
+  assert.deepEqual(profile.roadmap[0].milestones, [
+    { title: "Contract test passes", done: true },
+    { title: "Docs updated", done: false },
+  ]);
+  assert.equal(profile.roadmap[0].source, "https://github.com/bitbaum/fleet/issues/1");
+  const html = renderToStaticMarkup(
+    createElement(DevelopmentPage, {
+      profile,
+      section: "roadmap",
+      profileHref: "https://example.com/profile",
+    }),
+  );
+  assert.match(html, /data-done="true"/);
+  assert.match(html, /aria-label="Done"/);
+  assert.match(html, /Where this comes from/);
+});
 test("remote failure stays unavailable instead of inventing an empty history", async () => {
   assert.equal(
     await loadDevelopmentProfile(
@@ -71,4 +105,5 @@ test("public rendering escapes record text and exposes source links and active n
   assert.ok(!changes.includes("<script>"));
   assert.ok(!changes.includes('href="javascript:'));
   assert.match(changes, /&lt;script&gt;/);
+  assert.match(changes, /<time dateTime="2026-09-16">2026-09-16<\/time>/);
 });

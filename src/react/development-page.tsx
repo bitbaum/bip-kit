@@ -88,10 +88,28 @@ export function DevelopmentPage({
                 </p>
                 {item.milestones.length > 0 && (
                   <ul>
-                    {item.milestones.map((m, j) => (
-                      <li key={j}>{linkedText(m)}</li>
-                    ))}
+                    {item.milestones.map((milestone, j) => {
+                      const title = typeof milestone === "string" ? milestone : milestone.title;
+                      const done = typeof milestone === "string" ? false : milestone.done;
+                      return (
+                        <li key={j} data-done={done || undefined}>
+                          <span>
+                            {done && (
+                              <span className="bp-development-check" aria-label="Done">
+                                ✓{" "}
+                              </span>
+                            )}
+                            {linkedText(title)}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
+                )}
+                {item.source && (
+                  <p>
+                    <a href={safeHref(item.source) ?? "#"}>Where this comes from</a>
+                  </p>
                 )}
               </li>
             ))}
@@ -104,7 +122,7 @@ export function DevelopmentPage({
           {profile.changelog.map((item, i) => (
             <li key={`${item.date}-${i}`}>
               <h2>
-                <time>{item.date}</time>
+                <time dateTime={item.date}>{item.date}</time>
               </h2>
               <p className="bp-development-entry">{linkedText(item.done)}</p>
             </li>
