@@ -8,7 +8,9 @@ export interface DevelopmentProfile {
     status: string | null;
     progress: number | null;
     targetDate: string | null;
-    milestones: string[];
+    /** Legacy string rows and the fleet map's checked milestone records. */
+    milestones: (string | { title: string; done: boolean })[];
+    source?: string | null;
   }[];
   changelog: { date: string; done: string }[];
 }
@@ -26,7 +28,17 @@ export function developmentProfileFromMap(value: unknown, slug: string): Develop
         g &&
         typeof g.title === "string" &&
         Array.isArray(g.milestones) &&
-        g.milestones.every((m: unknown) => typeof m === "string"),
+        g.milestones.every(
+          (m: unknown) =>
+            typeof m === "string" ||
+            (!!m &&
+              typeof m === "object" &&
+              "title" in m &&
+              typeof m.title === "string" &&
+              "done" in m &&
+              typeof m.done === "boolean"),
+        ) &&
+        (g.source == null || typeof g.source === "string"),
     ) ||
     !p.changelog.every(
       (e: Record<string, unknown>) => e && typeof e.date === "string" && typeof e.done === "string",
@@ -46,6 +58,7 @@ export function developmentProfileFromMap(value: unknown, slug: string): Develop
           : null,
       targetDate: typeof g.targetDate === "string" ? g.targetDate : null,
       milestones: g.milestones,
+      source: typeof g.source === "string" ? g.source : null,
     })),
     changelog: p.changelog.map((e: DevelopmentProfile["changelog"][number]) => ({
       date: e.date,

@@ -1,5 +1,7 @@
 # bip-kit — Building in Public
 
+Release notes are tracked in [CHANGELOG.md](./CHANGELOG.md).
+
 ## Canonical development records
 
 `loadDevelopmentProfile(mapUrl, slug)` reads the selected public profile from a
