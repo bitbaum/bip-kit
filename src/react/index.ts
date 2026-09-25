@@ -40,3 +40,11 @@ export { ReadingProgress } from "./reading-progress.js";
 export { Lightbox } from "./lightbox.js";
 export { CopyButton } from "./copy-button.js";
 export { DevelopmentPage, developmentLabels } from "./development-page.js";
+export {
+  FeedbackProvider,
+  StanceButtons,
+  CommentThread,
+  SuggestBox,
+  defaultFeedbackLabels,
+} from "./feedback.js";
+export type { FeedbackLabels } from "./feedback.js";

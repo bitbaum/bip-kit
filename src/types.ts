@@ -66,6 +66,11 @@ export interface BlogPostMeta {
 }
 
 export type RoadmapItem = {
+  /**
+   * Stable across translations and renames. Optional; feedback on the item is
+   * stored under it (see `roadmapItemId`), so give one to a translated roadmap.
+   */
+  id?: string;
   title: string;
   line: string;
   details?: string[];
@@ -90,6 +95,8 @@ export type ChangelogTag = "feature" | "improvement" | "fix" | "platform" | "bre
 
 /** User-facing product changelog entry (not a git log). */
 export interface ChangelogEntry {
+  /** Stable across translations. Optional; comments are stored under it (see `changelogEntryId`). */
+  id?: string;
   date: string;
   tag: ChangelogTag;
   title: string;
