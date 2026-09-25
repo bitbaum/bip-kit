@@ -359,6 +359,61 @@ Client islands (each tiny, dependency-free): `Toc` (sticky scroll-spy; hides its
 
 Retheme by redefining vars on `:root` (and your dark scope) — zero rule overrides needed. Components emit **semantic classes only** (`bp-p`, `bp-h2`, `bp-callout bp-callout--warn`, `bp-figure`, …), so a from-scratch stylesheet is equally supported.
 
+## Feedback — let people answer the roadmap and the changelog
+
+Readers can mark a roadmap item **needed** or **not needed**, comment on a
+changelog entry, and suggest what is missing. As they type a suggestion, they
+see similar ones already on the list and can back one of those instead. No
+sign-in and no language model. bip-kit supplies the rules and the UI; your
+product supplies storage.
+
+```ts
+// app/api/feedback/route.ts
+import { createFeedbackHandler, roadmapItemId, changelogEntryId } from "bip-kit";
+import { ROADMAP, CHANGELOG } from "@/lib/config";
+import { store } from "@/lib/feedback-store"; // your FeedbackStore over your DB
+
+const ids = new Set([
+  ...ROADMAP.buckets.flatMap((b) => b.items.map(roadmapItemId)),
+  ...CHANGELOG.map(changelogEntryId),
+]);
+
+export const { GET, POST } = createFeedbackHandler({
+  store,
+  isTarget: (id) => ids.has(id),
+  allow: (request, action) => myRateLimit(request, action), // e.g. limitkit
+});
+```
+
+```tsx
+// on the roadmap page (client components; wrap once, place anywhere)
+import { FeedbackProvider, StanceButtons, CommentThread, SuggestBox } from "bip-kit/react";
+
+<FeedbackProvider endpoint="/api/feedback" targetIds={ids} labels={t.feedback}>
+  {items.map((item) => (
+    <li key={item.title}>
+      {item.title}
+      <StanceButtons targetId={roadmapItemId(item)} />
+      <CommentThread targetId={roadmapItemId(item)} />
+    </li>
+  ))}
+  <SuggestBox />
+</FeedbackProvider>;
+```
+
+- **Give translated items an `id`.** Without one, each item is keyed by the
+  slug of its title, so each language gets its own tally, and renaming an item
+  resets its votes.
+- **Voters** are a random key the browser keeps (`x-bip-voter`). That makes
+  "one vote per person" true for honest readers; the `allow` hook (rate
+  limiting per IP) is what stops someone who games it.
+- **What gets refused** (`screenText`): empty or 1–2 characters, over 1000
+  characters, more than one link, and floods. Criticism is not refused.
+- **Store contract:** one stance per voter per target (a second replaces the
+  first, `null` withdraws it) and one support per voter per suggestion. The
+  tests in `test/feedback.test.js` run against `memoryStore()` and describe
+  the behaviour your store must match.
+
 ## Security model
 
 Typed blocks are the security model:

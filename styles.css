@@ -1018,3 +1018,178 @@
     display: none;
   }
 }
+
+/* ── Feedback: stances, comments, suggestions ───────────────────────── */
+
+.bp-feedback-stance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.bp-feedback-stance-button,
+.bp-feedback-form button,
+.bp-feedback-similar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-sm);
+  background: var(--bp-bg);
+  color: var(--bp-fg);
+  font: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.bp-feedback-stance-button[aria-pressed="true"] {
+  border-color: var(--bp-fg);
+  background: var(--bp-surface);
+  font-weight: 600;
+}
+
+.bp-feedback-stance-button:disabled,
+.bp-feedback-form button:disabled,
+.bp-feedback-similar button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.bp-feedback-form button[type="submit"] {
+  border-color: var(--bp-accent);
+  background: var(--bp-accent);
+  color: var(--bp-accent-contrast);
+}
+
+.bp-feedback-count {
+  font-family: var(--bp-font-mono);
+  font-size: 0.8125rem;
+  color: var(--bp-fg-muted);
+}
+
+.bp-feedback-form button[type="submit"] .bp-feedback-count {
+  color: inherit;
+}
+
+.bp-feedback-thread {
+  margin-top: 0.75rem;
+}
+
+.bp-feedback-thread > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--bp-fg-muted);
+  font-size: 0.9375rem;
+}
+
+.bp-feedback-comments {
+  list-style: none;
+  margin: 0.5rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bp-feedback-comments li {
+  padding: 0.75rem 1rem;
+  border-radius: var(--bp-radius-sm);
+  background: var(--bp-surface);
+}
+
+.bp-feedback-comments p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.bp-feedback-comments time,
+.bp-feedback-empty {
+  font-size: 0.8125rem;
+  color: var(--bp-fg-faint);
+}
+
+.bp-feedback-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.bp-feedback-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-sm);
+  background: var(--bp-bg);
+  color: var(--bp-fg);
+  font: inherit;
+  /* 16px or more, or iOS zooms the page on focus. */
+  font-size: max(1rem, var(--bp-size));
+  resize: vertical;
+}
+
+.bp-feedback-suggest {
+  margin-top: calc(var(--bp-flow) * 2);
+  padding-top: var(--bp-flow);
+  border-top: 1px solid var(--bp-border);
+}
+
+.bp-feedback-suggest h3 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.bp-feedback-similar {
+  width: 100%;
+}
+
+.bp-feedback-similar p {
+  margin: 0.25rem 0;
+  color: var(--bp-fg-muted);
+  font-size: 0.9375rem;
+}
+
+.bp-feedback-similar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bp-feedback-similar li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--bp-radius-sm);
+  background: var(--bp-surface);
+}
+
+.bp-feedback-ok {
+  color: var(--bp-fg-muted);
+}
+
+.bp-feedback-error {
+  color: var(--bp-danger, var(--bp-fg));
+}
+
+/* Present for a form-filling bot, absent for a person and for assistive tech. */
+.bp-feedback-trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

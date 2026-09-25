@@ -24,3 +24,30 @@ export { extractToc, readingTime } from "./toc.js";
 export { parseVideoEmbed, videoEmbedSrc } from "./video-embed.js";
 export { developmentProfileFromMap, loadDevelopmentProfile } from "./development.js";
 export type { DevelopmentProfile } from "./development.js";
+
+export {
+  roadmapItemId,
+  changelogEntryId,
+  screenText,
+  similarity,
+  findSimilar,
+  SIMILAR_AT,
+  wilson,
+  voterFromHeader,
+  VOTER_HEADER,
+  memoryStore,
+  createFeedbackHandler,
+} from "./feedback.js";
+export type {
+  FeedbackKind,
+  Stance,
+  Tally,
+  FeedbackComment,
+  Suggestion,
+  FeedbackStore,
+  ScreenReason,
+  Screened,
+  ScreenOptions,
+  FeedbackAction,
+  FeedbackHandlerOptions,
+} from "./feedback.js";
