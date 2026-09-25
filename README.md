@@ -361,6 +361,14 @@ Retheme by redefining vars on `:root` (and your dark scope) — zero rule overri
 
 ## Feedback — let people answer the roadmap and the changelog
 
+> **In bitbaum products, a vote goes through Solon, not this module.** Voting
+> on a roadmap or having a say in its direction is a right someone holds: an
+> OrangeCat account and a seat in the product's organisation on
+> [Solon](https://solon.orangecat.ch). General "this is broken" feedback on any
+> page goes through the Loki feedback widget. This module collects anonymous
+> input under a browser key. Use it only where anonymous input is what the
+> product actually wants.
+
 Readers can mark a roadmap item **needed** or **not needed**, comment on a
 changelog entry, and suggest what is missing. As they type a suggestion, they
 see similar ones already on the list and can back one of those instead. No
