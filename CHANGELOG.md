@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.2 — 2026-09-30
+
+- `normalizeMarkdown` (and so `readCollection` and `parseFaq`) joins a wrapped
+  list item's indented lines into the item, the way prettier and most
+  changelogs wrap long bullets. Before, the rest of the sentence rendered as a
+  paragraph of its own. Indented numbered items are flattened like `- ` ones.
+
 ## 0.5.1 — 2026-09-30
 
 - `parseFrontmatter` (and so `readCollection`) reads a `[…]` list that wraps
