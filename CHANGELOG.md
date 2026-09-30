@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1 — 2026-09-30
+
+- `parseFrontmatter` (and so `readCollection`) reads a `[…]` list that wraps
+  over several lines, the form prettier gives long tag lists, and keeps commas
+  inside quoted items. Before, a wrapped list silently came back empty.
+
 ## 0.5.0 — 2026-09-30
 
 The parts every product was still writing for itself.

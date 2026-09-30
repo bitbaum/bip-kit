@@ -274,6 +274,28 @@ test("block YAML lists parse: dash items under an empty key", () => {
   assert.equal(body, "Body");
 });
 
+test("a [list] wrapped over several lines parses (prettier's long-list form)", () => {
+  const { meta, body } = parseFrontmatter(
+    "---\ntitle: Post\ntags:\n  [\n    'Vision',\n    'AI Agents',\n    'Bitcoin',\n  ]\nfeatured: true\n---\nBody",
+  );
+  assert.deepEqual(meta.tags, ["Vision", "AI Agents", "Bitcoin"]);
+  assert.equal(meta.featured, "true");
+  assert.equal(body, "Body");
+});
+
+test("a [list] opened on the key's line may close on a later one", () => {
+  const { meta } = parseFrontmatter(
+    "---\ntags: ['Platform Evolution', 'Bitcoin',\n  'BitBaum']\nauthor: Cato\n---\n",
+  );
+  assert.deepEqual(meta.tags, ["Platform Evolution", "Bitcoin", "BitBaum"]);
+  assert.equal(meta.author, "Cato");
+});
+
+test("quoted list items keep their commas", () => {
+  const { meta } = parseFrontmatter("---\ntags: [\"Zürich, Winterthur\", 'a, b', c]\n---\n");
+  assert.deepEqual(meta.tags, ["Zürich, Winterthur", "a, b", "c"]);
+});
+
 test("empty inline array parses to an empty array", () => {
   const { meta } = parseFrontmatter("---\ntags: []\n---\n");
   assert.deepEqual(meta.tags, []);

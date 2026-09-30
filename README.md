@@ -262,19 +262,18 @@ authors:
 ---
 ```
 
-**`parseFrontmatter` is a `key: value` scanner, not a YAML parser.** It is dependency-free on purpose and handles exactly three shapes: scalar `key: value`, inline `key: [a, b]`, and block `- item` lists. Every value comes back as a `string` or `string[]` — nothing else.
+**`parseFrontmatter` is a `key: value` scanner, not a YAML parser.** It is dependency-free on purpose and handles exactly three shapes: scalar `key: value`, `key: [a, b]` lists (also wrapped over several lines, the way prettier formats long ones, with commas allowed inside quoted items), and block `- item` lists. Every value comes back as a `string` or `string[]` — nothing else. The key ends at the first colon, so `title: Bitcoin: a peer-to-peer system` keeps its colon.
 
 It will get real YAML wrong, quietly:
 
 ```md
-title: "Bitcoin: a peer-to-peer system" → "Bitcoin"   ← splits on the FIRST colon
 draft: true                             → "true"      ← the string, not a boolean
 order: 3                                → "3"         ← the string, not a number
 author:                                                ← nesting is not supported
   name: Mao
 ```
 
-If your frontmatter has quoted strings containing colons, booleans, numbers, dates, or nesting, use a real YAML parser — [`gray-matter`](https://www.npmjs.com/package/gray-matter) is what kivvi keeps in front of bip-kit for exactly this — and hand the `body` it returns to `parseContentBlocks`:
+If your frontmatter needs booleans, numbers, dates, or nesting, use a real YAML parser — [`gray-matter`](https://www.npmjs.com/package/gray-matter) is what kivvi keeps in front of bip-kit for exactly this — and hand the `body` it returns to `parseContentBlocks`:
 
 ```ts
 import matter from "gray-matter";
