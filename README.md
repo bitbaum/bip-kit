@@ -25,7 +25,7 @@ Unavailable data says unavailable; an empty history says empty. Private fields
 are excluded from the projection. Labels and navigation URLs are overridable
 for localisation; operator-authored canonical record text is left unchanged.
 
-**Blog · Roadmap · Changelog** for product sites — one content contract, one reference renderer, instead of five blog stacks.
+**Blog · Roadmap · Changelog · Q&A** for product sites — one content contract, one reference renderer, instead of five blog stacks.
 
 You want to build in public. What you don't want is a CMS, a markdown pipeline, three renderers, and a security review every time a product site needs a blog. bip-kit is the small, sharp core of that stack:
 
@@ -283,6 +283,69 @@ const blocks = parseContentBlocks(body);
 ```
 
 bip-kit will not grow a YAML parser; one already exists.
+
+## A folder of posts — `bip-kit/node`
+
+Every product was writing the same fifty lines: list `content/blog/*.md`, read
+the frontmatter, sort newest first, 404 a bad slug. `readCollection` is that
+reader, and it accepts every shape those products used:
+
+```ts
+import { readCollection, readEntry } from "bip-kit/node";
+
+const posts = readCollection(join(process.cwd(), "content", "blog"));
+const post = readEntry(join(process.cwd(), "content", "blog"), slug); // undefined → notFound()
+// each: { slug, title, date, summary, tags, author, meta, body, blocks, toc, readingMinutes, file }
+```
+
+- Slug from the file name; a `2026-09-30-` prefix is the date and leaves the slug.
+- `title:` or the body's first `# Heading`; `date:` or `publishedAt:` or the
+  file name's date (YYYY-MM-DD, or the build fails naming the file);
+  `summary:` / `excerpt:` / `description:` or the first paragraph.
+- `draft: true` or `published: false` stays out unless `{ includeDrafts: true }`.
+- `README.md` and `_*.md` are ignored; `readEntry` only looks up plain slugs.
+
+It lives on its own subpath because it reads the filesystem; the main entry
+stays isomorphic.
+
+## Author-flavoured markdown — `normalizeMarkdown`
+
+The parser is strict on purpose. `normalizeMarkdown` is the one lenient step
+in front of it: `*`/`+` bullets become `-`, nested items flatten, a body `# h1`
+becomes `##`, single-quoted image captions become double-quoted, CRLF becomes
+LF, and code fences are left alone. `readCollection` and `parseFaq` apply it for
+you; call it yourself before `parseContentBlocks` for markdown from elsewhere
+(a database, a form).
+
+## Questions and answers — `parseFaq` + `<Faq>`
+
+```md
+## Do I need an account?
+
+No. Reading is open to anyone.
+
+# Voting
+
+## Who can vote?
+
+Members. Safety decisions: people only, not AI agents.
+```
+
+```tsx
+import { parseFaq } from "bip-kit";
+import { Faq } from "bip-kit/react";
+
+const sections = parseFaq(readFileSync("content/faq.md", "utf8"));
+return <Faq sections={sections} />;
+```
+
+`# Heading` starts a section (optional), `## Question` starts a question, and
+everything until the next heading is its answer, in the full block vocabulary.
+`<Faq>` renders native `<details>` (no client JavaScript, keyboard- and
+screen-reader-friendly, found by the browser's search), gives every question a
+linkable id, and adds schema.org `FAQPage` data (`structuredData={false}` to
+leave it out). `faqJsonLd(sections)` and `blocksToText(blocks)` are exported
+for your own markup.
 
 ## Helpers
 

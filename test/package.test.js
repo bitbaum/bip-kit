@@ -39,7 +39,13 @@ const PUBLIC_API = [
   "readingTime",
   "parseVideoEmbed",
   "videoEmbedSrc",
+  "normalizeMarkdown",
+  "parseFaq",
+  "faqJsonLd",
+  "blocksToText",
 ];
+
+const NODE_API = ["readCollection", "readEntry"];
 
 const REACT_API = [
   "ArticleBody",
@@ -55,6 +61,7 @@ const REACT_API = [
   "ReadingProgress",
   "Lightbox",
   "VideoEmbed",
+  "Faq",
 ];
 
 let workspace;
@@ -95,6 +102,7 @@ before(() => {
       'try { out.resolved = import.meta.resolve("bip-kit"); } catch { out.resolved = null; }',
       'try { out.exports = Object.keys(await import("bip-kit")).sort(); } catch { out.exports = null; }',
       'try { out.reactExports = Object.keys(await import("bip-kit/react")).sort(); } catch { out.reactExports = null; }',
+      'try { out.nodeExports = Object.keys(await import("bip-kit/node")).sort(); } catch { out.nodeExports = null; }',
       'try { out.mermaidExports = Object.keys(await import("bip-kit/react/mermaid")).sort(); } catch { out.mermaidExports = null; }',
       'try { out.stylesResolved = import.meta.resolve("bip-kit/styles.css"); } catch { out.stylesResolved = null; }',
       "console.log(JSON.stringify(out));",
@@ -117,6 +125,13 @@ test("the entry point exposes its whole public API", () => {
   assert.ok(probe.exports, 'importing "bip-kit" from a consumer install threw');
   for (const name of PUBLIC_API) {
     assert.ok(probe.exports.includes(name), `"${name}" is missing from the published entry point`);
+  }
+});
+
+test("the node subpath exposes the collection reader", () => {
+  assert.ok(probe.nodeExports, 'importing "bip-kit/node" from a consumer install threw');
+  for (const name of NODE_API) {
+    assert.ok(probe.nodeExports.includes(name), `"${name}" is missing from bip-kit/node`);
   }
 });
 
