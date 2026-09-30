@@ -4,7 +4,13 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { renderToString } from "react-dom/server";
-import { normalizeMarkdown, parseFaq, faqJsonLd, blocksToText } from "../dist/index.js";
+import {
+  normalizeMarkdown,
+  parseContentBlocks,
+  parseFaq,
+  faqJsonLd,
+  blocksToText,
+} from "../dist/index.js";
 import { readCollection, readEntry } from "../dist/node/index.js";
 import { Faq } from "../dist/react/index.js";
 
@@ -16,6 +22,47 @@ test("normalizeMarkdown tidies bullets, h1s, nested items and single-quoted capt
     normalizeMarkdown(input),
     '## Title\n- one\n- two\n- nested\n![a](/x.png "Cap")\n```\n# code\n* ptr\n```',
   );
+});
+
+test("normalizeMarkdown joins a wrapped list item's indented lines into the item", () => {
+  const input = [
+    "- **First** item that wraps",
+    "  onto a second line.",
+    "  - **Nested** item that also",
+    "    wraps.",
+    "1. Numbered and",
+    "   wrapped.",
+    "",
+    "    indented code after a blank line stays",
+    "Plain paragraph",
+    "  with an indented second line stays a paragraph.",
+    "```",
+    "- in a fence",
+    "  stays as written",
+    "```",
+  ].join("\n");
+  assert.equal(
+    normalizeMarkdown(input),
+    [
+      "- **First** item that wraps onto a second line.",
+      "- **Nested** item that also wraps.",
+      "1. Numbered and wrapped.",
+      "",
+      "    indented code after a blank line stays",
+      "Plain paragraph",
+      "  with an indented second line stays a paragraph.",
+      "```",
+      "- in a fence",
+      "  stays as written",
+      "```",
+    ].join("\n"),
+  );
+});
+
+test("a wrapped bullet parses as one list item, not a list and a paragraph", () => {
+  const blocks = parseContentBlocks(normalizeMarkdown("- one that\n  wraps\n- two"));
+  assert.equal(blocks.length, 1);
+  assert.deepEqual(blocks[0].items, ["one that wraps", "two"]);
 });
 
 // ── parseFaq ────────────────────────────────────────────────────────────────
