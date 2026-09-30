@@ -294,6 +294,27 @@ function parseStats(source: string): { value: string; label: string }[] {
   return items;
 }
 
+/** The items of a `[…]` list body, split on commas outside quotes, trimmed, empties dropped. */
+function splitFlowList(inner: string): string[] {
+  const items: string[] = [];
+  let current = "";
+  let quote: string | null = null;
+  for (const ch of inner) {
+    if (quote) {
+      if (ch === quote) quote = null;
+    } else if (ch === '"' || ch === "'") {
+      quote = ch;
+    } else if (ch === ",") {
+      items.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += ch;
+  }
+  items.push(current.trim());
+  return items.filter((item) => item.length > 0);
+}
+
 /**
  * Simple YAML-ish frontmatter. `key: value` (matching quotes stripped), plus
  * two dependency-free array forms:
@@ -302,6 +323,9 @@ function parseStats(source: string): { value: string; label: string }[] {
  *   tags:             →  ["a", "b"]
  *     - a
  *     - b
+ *
+ * A `[…]` list may wrap over several lines (prettier wraps long ones that
+ * way), and a quoted item may contain commas.
  *
  * Existing scalar files keep parsing exactly as before (values stay strings).
  */
@@ -339,6 +363,22 @@ export function parseFrontmatter(raw: string): {
     const key = line.slice(0, idx).trim();
     const value = line.slice(idx + 1).trim();
 
+    // A `[` that does not close on its own line: gather lines until it does.
+    const opensList = value.startsWith("[") || (value === "" && /^\s*\[/.test(lines[i + 1] ?? ""));
+    if (opensList && !value.endsWith("]")) {
+      let flow = value;
+      let j = i + 1;
+      while (j < lines.length && !flow.trimEnd().endsWith("]")) {
+        flow += ` ${lines[j].trim()}`;
+        j += 1;
+      }
+      if (flow.trimEnd().endsWith("]")) {
+        meta[key] = splitFlowList(flow.trim().slice(1, -1)).map(stripQuotes);
+        i = j;
+        continue;
+      }
+    }
+
     if (value === "") {
       const items: string[] = [];
       let j = i + 1;
@@ -357,11 +397,7 @@ export function parseFrontmatter(raw: string): {
     }
 
     if (value.startsWith("[") && value.endsWith("]")) {
-      meta[key] = value
-        .slice(1, -1)
-        .split(",")
-        .map((item) => stripQuotes(item.trim()))
-        .filter((item) => item.length > 0);
+      meta[key] = splitFlowList(value.slice(1, -1)).map(stripQuotes);
       i += 1;
       continue;
     }
