@@ -35,6 +35,9 @@ export { MathBlock, MathView, renderMath } from "./math.js";
 export type { MathViewProps } from "./math.js";
 export { Chart } from "./chart.js";
 
+export { Faq } from "./faq.js";
+export type { FaqProps } from "./faq.js";
+
 export { Toc } from "./toc.js";
 export { ReadingProgress } from "./reading-progress.js";
 export { Lightbox } from "./lightbox.js";

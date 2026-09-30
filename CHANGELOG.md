@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.0 — 2026-09-30
+
+The parts every product was still writing for itself.
+
+- `bip-kit/node`: `readCollection(dir)` / `readEntry(dir, slug)` read a folder
+  of markdown files as a list of entries, newest first. Accepts `title:` or a
+  body `# h1`; `date:`, `publishedAt:` or a `YYYY-MM-DD-` file name; `summary:`,
+  `excerpt:`, `description:` or the first paragraph; `draft: true` /
+  `published: false`. A malformed date fails the build, naming the file.
+  Replaces five per-product readers.
+- `normalizeMarkdown`: the lenient step in front of the strict parser (bullets,
+  nested items, body h1, single-quoted captions, CRLF). Replaces four copies.
+- `parseFaq` + `<Faq>` (`bip-kit/react`): questions and answers from one
+  markdown file, rendered as native `<details>` with linkable ids and
+  schema.org `FAQPage` data. `faqJsonLd`, `blocksToText` exported. Styles in
+  `styles.css` (`bp-faq-*`), tokens only.
+
 ## 0.4.0 — 2026-09-25
 
 Roadmaps and changelogs people can answer.

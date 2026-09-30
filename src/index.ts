@@ -17,6 +17,9 @@ export type { ChartSpec, ChartSeries } from "./chart.js";
 export type { SlugFn, SlugOptions } from "./slug.js";
 
 export { parseContentBlocks, parseFrontmatter } from "./parse-content.js";
+export { normalizeMarkdown } from "./normalize.js";
+export { parseFaq, faqJsonLd, blocksToText } from "./faq.js";
+export type { FaqItem, FaqSection } from "./faq.js";
 export { parseInline, inlineToText } from "./inline.js";
 export { parseChartSpec, validateChartSpec } from "./chart.js";
 export { slugify, unicodeSlugify, createSlugger } from "./slug.js";
