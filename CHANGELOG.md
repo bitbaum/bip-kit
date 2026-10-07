@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.6.0 — 2026-10-07
+
+The roadmap and the changelog, read as one record.
+
+- A `{#id}` token on a roadmap milestone (or goal) and on a changelog line
+  links them. `DevelopmentPage` shows, under each milestone, the dated
+  changelog entries that delivered it, and under each changelog line, the
+  milestone it advanced — both as anchored links (`#step-<id>`,
+  `#goal-<id>`, `#change-<date>`). Tokens are stripped from what is shown.
+- The roadmap is drawn as a trail per goal: one mark per milestone, filled
+  where done. Done marks keep `aria-label="Done"`.
+- `linkDevelopment(profile)` exposes the model for custom pages (goals with
+  `deliveredIn` and first/last dates, changes with `advances`, the journey
+  shipped/now/next/later, `danglingRefs`, `unrecordedSteps`); `readRefs`,
+  `phaseOf`, `changeAnchor` alongside. `RoadmapTrail`, `ChangeAdvances` and
+  `linkedText` from `bip-kit/react`.
+- Nothing upstream changes: the token rides inside the milestone titles and
+  changelog lines the fleet map already carries.
+
 ## 0.5.2 — 2026-09-30
 
 - `normalizeMarkdown` (and so `readCollection` and `parseFaq`) joins a wrapped

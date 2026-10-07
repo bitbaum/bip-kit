@@ -44,6 +44,12 @@ export { Lightbox } from "./lightbox.js";
 export { CopyButton } from "./copy-button.js";
 export { DevelopmentPage, developmentLabels } from "./development-page.js";
 export {
+  RoadmapTrail,
+  ChangeAdvances,
+  developmentLinkLabels,
+  linkedText,
+} from "./development-links.js";
+export {
   FeedbackProvider,
   StanceButtons,
   CommentThread,
