@@ -25,6 +25,36 @@ Unavailable data says unavailable; an empty history says empty. Private fields
 are excluded from the projection. Labels and navigation URLs are overridable
 for localisation; operator-authored canonical record text is left unchanged.
 
+### Linking the roadmap and the changelog
+
+Put the same `{#id}` on a roadmap milestone and on the changelog line that
+delivered it:
+
+```md
+<!-- ROADMAP.md -->
+### Events, end to end {#events}
+- [x] Pay the crew from the event {#crew-pay}
+
+<!-- CHANGELOG.md -->
+## 2026-10-07
+- Organizers pay each crew member in one click {#crew-pay}
+```
+
+`DevelopmentPage` then links both ways: each milestone shows the dated
+changelog entries that delivered it (`/changelog#change-2026-10-07`), and each
+changelog line names the milestone it advanced (`/roadmap#step-crew-pay`).
+A goal's milestones are drawn as a trail, filled where done. The tokens are
+never printed. Ids are lowercase kebab-case starting with a letter, so `(#1240)`
+pull-request references are left alone; a line may cite a goal's id too.
+
+For a custom page, `linkDevelopment(profile)` returns the same model:
+`goals` (steps, `deliveredIn`, first/last dates, percent, next step), `changes`
+(lines with what each `advances`), the `journey` (shipped / now / next / later),
+and two honesty checks — `danglingRefs` (ids the changelog cites that nothing
+declares) and `unrecordedSteps` (milestones ticked done that no changelog line
+cites). `RoadmapTrail` and `ChangeAdvances` from `bip-kit/react` render the two
+halves inside any layout.
+
 **Blog · Roadmap · Changelog · Q&A** for product sites — one content contract, one reference renderer, instead of five blog stacks.
 
 You want to build in public. What you don't want is a CMS, a markdown pipeline, three renderers, and a security review every time a product site needs a blog. bip-kit is the small, sharp core of that stack:

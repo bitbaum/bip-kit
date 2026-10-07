@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
 import type { DevelopmentProfile } from "../development.js";
+import { linkDevelopment } from "../development-links.js";
+import { ChangeAdvances, RoadmapTrail, linkedText } from "./development-links.js";
 import { safeHref } from "./inline.js";
 
 export const developmentLabels = {
@@ -16,20 +17,6 @@ export const developmentLabels = {
   progress: "recorded progress",
   target: "Target",
 };
-
-/** URLs in operator-authored records remain directly checkable; React escapes all other text. */
-function linkedText(text: string): ReactNode {
-  return text.split(/(https?:\/\/[^\s<>]+)/g).map((part, i) => {
-    const href = /^https?:\/\//.test(part) ? safeHref(part) : null;
-    return href ? (
-      <a key={i} href={href}>
-        {part}
-      </a>
-    ) : (
-      part
-    );
-  });
-}
 
 export function DevelopmentPage({
   profile,
@@ -49,6 +36,7 @@ export function DevelopmentPage({
   labels?: Partial<typeof developmentLabels>;
 }) {
   const labels = { ...developmentLabels, ...suppliedLabels };
+  const linked = profile ? linkDevelopment(profile) : null;
   return (
     <article className="bp-development">
       <header>
@@ -76,39 +64,20 @@ export function DevelopmentPage({
       {!profile ? (
         <p role="status">{labels.unavailable}</p>
       ) : section === "roadmap" ? (
-        profile.roadmap.length ? (
+        linked && linked.goals.length ? (
           <ol className="bp-development-records">
-            {profile.roadmap.map((item, i) => (
-              <li key={`${item.title}-${i}`}>
-                <h2>{item.title}</h2>
+            {linked.goals.map((goal) => (
+              <li key={goal.anchor} id={goal.anchor}>
+                <h2>{goal.title}</h2>
                 <p className="bp-development-meta">
-                  {item.status}
-                  {item.progress !== null && ` · ${item.progress}% ${labels.progress}`}
-                  {item.targetDate && ` · ${labels.target}: ${item.targetDate}`}
+                  {goal.status}
+                  {goal.percent !== null && ` · ${goal.percent}% ${labels.progress}`}
+                  {goal.targetDate && ` · ${labels.target}: ${goal.targetDate}`}
                 </p>
-                {item.milestones.length > 0 && (
-                  <ul>
-                    {item.milestones.map((milestone, j) => {
-                      const title = typeof milestone === "string" ? milestone : milestone.title;
-                      const done = typeof milestone === "string" ? false : milestone.done;
-                      return (
-                        <li key={j} data-done={done || undefined}>
-                          <span>
-                            {done && (
-                              <span className="bp-development-check" aria-label="Done">
-                                ✓{" "}
-                              </span>
-                            )}
-                            {linkedText(title)}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-                {item.source && (
+                <RoadmapTrail goal={goal} changelogHref={changelogHref} />
+                {goal.source && (
                   <p>
-                    <a href={safeHref(item.source) ?? "#"}>Where this comes from</a>
+                    <a href={safeHref(goal.source) ?? "#"}>Where this comes from</a>
                   </p>
                 )}
               </li>
@@ -117,14 +86,19 @@ export function DevelopmentPage({
         ) : (
           <p>{labels.emptyRoadmap}</p>
         )
-      ) : profile.changelog.length ? (
+      ) : linked && linked.changes.length ? (
         <ol className="bp-development-records">
-          {profile.changelog.map((item, i) => (
-            <li key={`${item.date}-${i}`}>
+          {linked.changes.map((change) => (
+            <li key={change.anchor} id={change.anchor}>
               <h2>
-                <time dateTime={item.date}>{item.date}</time>
+                <time dateTime={change.date}>{change.date}</time>
               </h2>
-              <p className="bp-development-entry">{linkedText(item.done)}</p>
+              {change.lines.map((line, j) => (
+                <p key={j} className="bp-development-entry">
+                  {linkedText(line.text)}
+                  <ChangeAdvances advances={line.advances} roadmapHref={roadmapHref} />
+                </p>
+              ))}
             </li>
           ))}
         </ol>

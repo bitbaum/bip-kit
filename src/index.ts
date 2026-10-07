@@ -27,6 +27,17 @@ export { extractToc, readingTime } from "./toc.js";
 export { parseVideoEmbed, videoEmbedSrc } from "./video-embed.js";
 export { developmentProfileFromMap, loadDevelopmentProfile } from "./development.js";
 export type { DevelopmentProfile } from "./development.js";
+export { linkDevelopment, readRefs, phaseOf, changeAnchor } from "./development-links.js";
+export type {
+  LinkedDevelopment,
+  LinkedGoal,
+  LinkedStep,
+  LinkedChange,
+  LinkedChangeLine,
+  Advance,
+  ChangeRef,
+  JourneyPhase,
+} from "./development-links.js";
 
 export {
   roadmapItemId,
