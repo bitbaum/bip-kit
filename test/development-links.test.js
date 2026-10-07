@@ -122,3 +122,19 @@ test("the pages link both ways and never print the tokens", () => {
   assert.match(changelog, /href="\/roadmap#goal-events"/);
   assert.doesNotMatch(changelog, /\{#/);
 });
+
+test("a step cited twice on one day links to that day once", () => {
+  const twice = {
+    ...profile,
+    changelog: [{ date: "2026-10-07", done: "Pay the crew {#crew-pay}\nRefunds too {#crew-pay}" }],
+  };
+  const html = renderToStaticMarkup(
+    createElement(DevelopmentPage, { profile: twice, section: "roadmap", profileHref: "/p" }),
+  );
+  assert.equal(html.match(/href="\/changelog#change-2026-10-07"/g).length, 1);
+  assert.equal(
+    linkDevelopment(twice).goals[0].steps[1].deliveredIn.length,
+    2,
+    "the data keeps both lines",
+  );
+});

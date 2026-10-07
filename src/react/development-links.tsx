@@ -63,11 +63,17 @@ export function RoadmapTrail({
               {step.deliveredIn.length > 0 && (
                 <span className="bp-trail-cites">
                   {labels.deliveredIn}{" "}
-                  {step.deliveredIn.map((c, j) => (
-                    <a key={`${c.anchor}-${j}`} href={join(changelogHref, c.anchor)} title={c.line}>
-                      <time dateTime={c.date}>{c.date}</time>
-                    </a>
-                  ))}
+                  {step.deliveredIn
+                    .filter((c, k, all) => all.findIndex((r) => r.anchor === c.anchor) === k)
+                    .map((c, j) => (
+                      <a
+                        key={`${c.anchor}-${j}`}
+                        href={join(changelogHref, c.anchor)}
+                        title={c.line}
+                      >
+                        <time dateTime={c.date}>{c.date}</time>
+                      </a>
+                    ))}
                 </span>
               )}
             </li>
