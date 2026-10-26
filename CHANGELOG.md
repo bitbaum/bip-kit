@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.1 — 2026-10-26
+
+- Add `RoadmapDocument` and `ChangelogDocument` to `bip-kit/react` for rendering
+  locally authored `RoadmapDoc` and `ChangelogEntry` records with the same
+  responsive semantic structure across products. The components keep product
+  copy and date formatting caller-owned, accept localized category labels,
+  expose token-based styles, preserve stable item IDs, and reject unsafe essay
+  links. Roadmap rendering can defer its title to an existing page header.
+
 ## 0.6.0 — 2026-10-07
 
 The roadmap and the changelog, read as one record.
