@@ -43,6 +43,8 @@ export { ReadingProgress } from "./reading-progress.js";
 export { Lightbox } from "./lightbox.js";
 export { CopyButton } from "./copy-button.js";
 export { DevelopmentPage, developmentLabels } from "./development-page.js";
+export { RoadmapDocument, ChangelogDocument } from "./records.js";
+export type { RoadmapDocumentProps, ChangelogDocumentProps } from "./records.js";
 export {
   RoadmapTrail,
   ChangeAdvances,

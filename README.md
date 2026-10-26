@@ -55,6 +55,32 @@ declares) and `unrecordedSteps` (milestones ticked done that no changelog line
 cites). `RoadmapTrail` and `ChangeAdvances` from `bip-kit/react` render the two
 halves inside any layout.
 
+### Locally authored typed records
+
+When content lives in an app's typed `RoadmapDoc` / `ChangelogEntry` modules
+rather than the fleet's remote public map, render the shared structure without
+moving or flattening product-owned copy:
+
+```tsx
+import { RoadmapDocument, ChangelogDocument } from "bip-kit/react";
+import "bip-kit/styles.css";
+
+<RoadmapDocument doc={roadmap} lang="de" headingLevel={2} />
+<ChangelogDocument
+  entries={changes}
+  lang="de"
+  formatDate={(iso) => new Intl.DateTimeFormat("de-CH", { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${iso}T12:00:00Z`))}
+  tagLabels={{ feature: "Neu", improvement: "Verbessert", fix: "Behoben", platform: "Plattform", breaking: "Änderung" }}
+/>
+```
+
+The roadmap can set `showHeader={false}` when the page already renders its
+title and lede. `essayHref` resolves product-local paths, and `essayLink` lets
+the host use its router while the renderer still rejects unsafe schemes. The
+changelog retains an ISO `dateTime` when `formatDate` supplies localized text.
+Both components use `bp-*` CSS variables and accept `className`, so a host can
+map its semantic tokens without copying the markup.
+
 **Blog · Roadmap · Changelog · Q&A** for product sites — one content contract, one reference renderer, instead of five blog stacks.
 
 You want to build in public. What you don't want is a CMS, a markdown pipeline, three renderers, and a security review every time a product site needs a blog. bip-kit is the small, sharp core of that stack:

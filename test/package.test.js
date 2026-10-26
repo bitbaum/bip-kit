@@ -62,6 +62,8 @@ const REACT_API = [
   "Lightbox",
   "VideoEmbed",
   "Faq",
+  "RoadmapDocument",
+  "ChangelogDocument",
 ];
 
 let workspace;

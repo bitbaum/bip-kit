@@ -122,6 +122,122 @@
   border-block-start: 1px solid var(--bp-border);
   padding-block: var(--bp-flow);
 }
+
+/* Typed, locally-authored roadmap and changelog documents. */
+.bp-roadmap,
+.bp-changelog {
+  color: var(--bp-fg);
+  font: var(--bp-size) / var(--bp-leading) var(--bp-font-sans);
+  overflow-wrap: anywhere;
+}
+.bp-roadmap-header {
+  margin-block-end: calc(2 * var(--bp-flow));
+}
+.bp-roadmap-header h2,
+.bp-roadmap-header h3,
+.bp-roadmap-header h4,
+.bp-roadmap-bucket h3,
+.bp-roadmap-bucket h4,
+.bp-changelog-entry h2 {
+  color: var(--bp-fg);
+  line-height: 1.25;
+  margin-block: 0.5em;
+}
+.bp-roadmap-header h2 {
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+}
+.bp-roadmap-header h3 {
+  font-size: 1.4rem;
+}
+.bp-roadmap-header h4 {
+  font-size: 1.2rem;
+}
+.bp-record-eyebrow,
+.bp-changelog-meta {
+  color: var(--bp-fg-muted);
+  font: 0.75rem / 1.5 var(--bp-font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.bp-record-lede {
+  max-width: var(--bp-measure);
+  color: var(--bp-fg-muted);
+}
+.bp-roadmap-bucket,
+.bp-changelog-entry {
+  border-block-start: 1px solid var(--bp-border);
+  padding-block: var(--bp-flow);
+}
+.bp-roadmap-summary {
+  color: var(--bp-fg-muted);
+}
+.bp-roadmap-items,
+.bp-roadmap-details,
+.bp-changelog-items {
+  display: grid;
+  gap: 0.75em;
+  list-style: none;
+  padding: 0;
+}
+.bp-roadmap-items {
+  margin-block: 1.5em 0;
+  list-style: none;
+}
+.bp-roadmap-item {
+  border-inline-start: 2px solid var(--bp-border);
+  padding-inline-start: 1em;
+}
+.bp-roadmap-item h4 {
+  font-size: 1.1em;
+}
+.bp-roadmap-item p,
+.bp-changelog-entry p {
+  margin-block: 0.5em;
+}
+.bp-roadmap-details {
+  color: var(--bp-fg-muted);
+  font-size: 0.9em;
+  list-style: none;
+}
+.bp-roadmap-details li::before,
+.bp-changelog-items li::before {
+  content: "—";
+  margin-inline-end: 0.5em;
+  color: var(--bp-fg-faint);
+}
+.bp-record-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: var(--bp-accent);
+  text-underline-offset: 0.2em;
+}
+.bp-record-link:focus-visible {
+  outline: 2px solid var(--bp-accent);
+  outline-offset: 3px;
+}
+.bp-changelog {
+  margin: 0;
+  padding: 0;
+}
+.bp-changelog-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 1.25em;
+}
+.bp-changelog-entry h2 {
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+}
+.bp-changelog-tag {
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-sm);
+  padding: 0.15em 0.5em;
+}
+.bp-changelog-items {
+  color: var(--bp-fg-muted);
+  font-size: 0.9em;
+  list-style: none;
+}
 .bp-development-records ul {
   list-style: disc;
   padding-inline-start: 1.25em;
