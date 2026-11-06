@@ -1,5 +1,12 @@
 # Changelog
 
+## Renamed — `bip-kit` is now `@bitbaum/bip-kit`
+
+Same code, same version, same repository; the package now lives under the
+`@bitbaum` npm organization like the rest of the fleet's packages. Install
+`@bitbaum/bip-kit` and import from it (`bip-kit` stays installable and is deprecated
+once no adopter uses it). No API changed.
+
 ## 0.6.1 — 2026-10-26
 
 - Add `RoadmapDocument` and `ChangelogDocument` to `bip-kit/react` for rendering

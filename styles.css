@@ -1,5 +1,5 @@
 /**
- * bip-kit/styles.css — complete neutral default theme for bip-kit/react.
+ * @bitbaum/bip-kit/styles.css — complete neutral default theme for @bitbaum/bip-kit/react.
  *
  * Contract: every color, font, radius and measure is a CSS custom property.
  * Consumers retheme var-by-var (light AND dark) without touching a single

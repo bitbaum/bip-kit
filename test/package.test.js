@@ -72,7 +72,7 @@ let probe;
 
 before(() => {
   workspace = mkdtempSync(join(tmpdir(), "bip-kit-pack-"));
-  installed = join(workspace, "node_modules", "bip-kit");
+  installed = join(workspace, "node_modules", "@bitbaum/bip-kit");
   mkdirSync(installed, { recursive: true });
 
   execFileSync("npm", ["pack", "--silent", "--pack-destination", workspace], {
@@ -101,12 +101,12 @@ before(() => {
     join(workspace, "probe.mjs"),
     [
       "const out = {};",
-      'try { out.resolved = import.meta.resolve("bip-kit"); } catch { out.resolved = null; }',
-      'try { out.exports = Object.keys(await import("bip-kit")).sort(); } catch { out.exports = null; }',
-      'try { out.reactExports = Object.keys(await import("bip-kit/react")).sort(); } catch { out.reactExports = null; }',
-      'try { out.nodeExports = Object.keys(await import("bip-kit/node")).sort(); } catch { out.nodeExports = null; }',
-      'try { out.mermaidExports = Object.keys(await import("bip-kit/react/mermaid")).sort(); } catch { out.mermaidExports = null; }',
-      'try { out.stylesResolved = import.meta.resolve("bip-kit/styles.css"); } catch { out.stylesResolved = null; }',
+      'try { out.resolved = import.meta.resolve("@bitbaum/bip-kit"); } catch { out.resolved = null; }',
+      'try { out.exports = Object.keys(await import("@bitbaum/bip-kit")).sort(); } catch { out.exports = null; }',
+      'try { out.reactExports = Object.keys(await import("@bitbaum/bip-kit/react")).sort(); } catch { out.reactExports = null; }',
+      'try { out.nodeExports = Object.keys(await import("@bitbaum/bip-kit/node")).sort(); } catch { out.nodeExports = null; }',
+      'try { out.mermaidExports = Object.keys(await import("@bitbaum/bip-kit/react/mermaid")).sort(); } catch { out.mermaidExports = null; }',
+      'try { out.stylesResolved = import.meta.resolve("@bitbaum/bip-kit/styles.css"); } catch { out.stylesResolved = null; }',
       "console.log(JSON.stringify(out));",
     ].join("\n"),
   );
@@ -120,20 +120,20 @@ before(() => {
 });
 
 test("the package resolves from a consumer install", () => {
-  assert.ok(probe.resolved, '"bip-kit" did not resolve through its own exports map');
+  assert.ok(probe.resolved, '"@bitbaum/bip-kit" did not resolve through its own exports map');
 });
 
 test("the entry point exposes its whole public API", () => {
-  assert.ok(probe.exports, 'importing "bip-kit" from a consumer install threw');
+  assert.ok(probe.exports, 'importing "@bitbaum/bip-kit" from a consumer install threw');
   for (const name of PUBLIC_API) {
     assert.ok(probe.exports.includes(name), `"${name}" is missing from the published entry point`);
   }
 });
 
 test("the node subpath exposes the collection reader", () => {
-  assert.ok(probe.nodeExports, 'importing "bip-kit/node" from a consumer install threw');
+  assert.ok(probe.nodeExports, 'importing "@bitbaum/bip-kit/node" from a consumer install threw');
   for (const name of NODE_API) {
-    assert.ok(probe.nodeExports.includes(name), `"${name}" is missing from bip-kit/node`);
+    assert.ok(probe.nodeExports.includes(name), `"${name}" is missing from @bitbaum/bip-kit/node`);
   }
 });
 
@@ -163,18 +163,21 @@ test("the tarball ships built output, not raw TypeScript sources", () => {
 });
 
 test("the react subpath exposes the renderer API from a consumer install", () => {
-  assert.ok(probe.reactExports, 'importing "bip-kit/react" from a consumer install threw');
+  assert.ok(probe.reactExports, 'importing "@bitbaum/bip-kit/react" from a consumer install threw');
   for (const name of REACT_API) {
-    assert.ok(probe.reactExports.includes(name), `"${name}" is missing from bip-kit/react`);
+    assert.ok(
+      probe.reactExports.includes(name),
+      `"${name}" is missing from @bitbaum/bip-kit/react`,
+    );
   }
 });
 
 test("the mermaid island lives on its own subpath", () => {
-  assert.ok(probe.mermaidExports, 'importing "bip-kit/react/mermaid" threw');
+  assert.ok(probe.mermaidExports, 'importing "@bitbaum/bip-kit/react/mermaid" threw');
   assert.ok(probe.mermaidExports.includes("MermaidBlock"), "MermaidBlock missing");
 });
 
 test("styles.css is exported and shipped in the tarball", () => {
-  assert.ok(probe.stylesResolved, '"bip-kit/styles.css" did not resolve');
+  assert.ok(probe.stylesResolved, '"@bitbaum/bip-kit/styles.css" did not resolve');
   assert.ok(existsSync(join(installed, "styles.css")), "styles.css missing from the tarball");
 });

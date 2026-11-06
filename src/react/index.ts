@@ -1,9 +1,9 @@
 /**
- * bip-kit/react — the reference renderer for the bip-kit block vocabulary.
+ * @bitbaum/bip-kit/react — the reference renderer for the bip-kit block vocabulary.
  *
  * RSC-first. Semantic bp-* classes + CSS variables only; pair with
- * `bip-kit/styles.css` (or your own theme). Mermaid lives on its own
- * subpath: `bip-kit/react/mermaid`.
+ * `@bitbaum/bip-kit/styles.css` (or your own theme). Mermaid lives on its own
+ * subpath: `@bitbaum/bip-kit/react/mermaid`.
  */
 
 export { ArticleBody } from "./article-body.js";

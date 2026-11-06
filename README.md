@@ -1,20 +1,20 @@
-# bip-kit — Building in Public
+# @bitbaum/bip-kit — Building in Public
 
 Release notes are tracked in [CHANGELOG.md](./CHANGELOG.md).
 
 ## Canonical development records
 
 `loadDevelopmentProfile(mapUrl, slug)` reads the selected public profile from a
-remote `{ projects: [...] }` map. `DevelopmentPage` from `bip-kit/react` renders
+remote `{ projects: [...] }` map. `DevelopmentPage` from `@bitbaum/bip-kit/react` renders
 its roadmap or changelog with the same responsive layout, source links and
-failure states on every product. Import `bip-kit/styles.css` and override its
+failure states on every product. Import `@bitbaum/bip-kit/styles.css` and override its
 CSS variables to match the host product. No product names or service hosts are
 stored in this package.
 
 ```tsx
-import { loadDevelopmentProfile } from "bip-kit";
-import { DevelopmentPage } from "bip-kit/react";
-import "bip-kit/styles.css";
+import { loadDevelopmentProfile } from "@bitbaum/bip-kit";
+import { DevelopmentPage } from "@bitbaum/bip-kit/react";
+import "@bitbaum/bip-kit/styles.css";
 
 const profile = await loadDevelopmentProfile(publicMapUrl, projectSlug);
 return <DevelopmentPage profile={profile} section="roadmap" profileHref={publicProfileUrl} />;
@@ -52,7 +52,7 @@ For a custom page, `linkDevelopment(profile)` returns the same model:
 (lines with what each `advances`), the `journey` (shipped / now / next / later),
 and two honesty checks — `danglingRefs` (ids the changelog cites that nothing
 declares) and `unrecordedSteps` (milestones ticked done that no changelog line
-cites). `RoadmapTrail` and `ChangeAdvances` from `bip-kit/react` render the two
+cites). `RoadmapTrail` and `ChangeAdvances` from `@bitbaum/bip-kit/react` render the two
 halves inside any layout.
 
 ### Locally authored typed records
@@ -62,8 +62,8 @@ rather than the fleet's remote public map, render the shared structure without
 moving or flattening product-owned copy:
 
 ```tsx
-import { RoadmapDocument, ChangelogDocument } from "bip-kit/react";
-import "bip-kit/styles.css";
+import { RoadmapDocument, ChangelogDocument } from "@bitbaum/bip-kit/react";
+import "@bitbaum/bip-kit/styles.css";
 
 <RoadmapDocument doc={roadmap} lang="de" headingLevel={2} />
 <ChangelogDocument
@@ -85,14 +85,14 @@ map its semantic tokens without copying the markup.
 
 You want to build in public. What you don't want is a CMS, a markdown pipeline, three renderers, and a security review every time a product site needs a blog. bip-kit is the small, sharp core of that stack:
 
-- **`bip-kit`** — a zero-dependency parser that turns repo-authored markdown into **typed blocks** (plus the types for a roadmap and a user-facing changelog).
-- **`bip-kit/react`** — a reference renderer: RSC-first server components, tiny client islands, semantic `bp-*` classes, every color a CSS variable.
-- **`bip-kit/styles.css`** — a complete neutral theme (measured ~70ch line length, real vertical rhythm, dark mode, mobile-first, print-safe) that you retheme var-by-var.
+- **`@bitbaum/bip-kit`** — a zero-dependency parser that turns repo-authored markdown into **typed blocks** (plus the types for a roadmap and a user-facing changelog).
+- **`@bitbaum/bip-kit/react`** — a reference renderer: RSC-first server components, tiny client islands, semantic `bp-*` classes, every color a CSS variable.
+- **`@bitbaum/bip-kit/styles.css`** — a complete neutral theme (measured ~70ch line length, real vertical rhythm, dark mode, mobile-first, print-safe) that you retheme var-by-var.
 
 Same vocabulary everywhere, your design tokens on top.
 
 ```bash
-npm i bip-kit
+npm i @bitbaum/bip-kit
 # optional, only if your content uses them:
 npm i shiki    # syntax highlighting
 npm i katex    # math
@@ -106,9 +106,9 @@ Core parser: zero dependencies. Renderer: `react >= 18` as the only required pee
 ```tsx
 // app/blog/[slug]/page.tsx — a server component; ArticleBody is async (RSC)
 import { readFileSync } from "node:fs";
-import { parseFrontmatter, parseContentBlocks, extractToc, readingTime } from "bip-kit";
-import { ArticleBody, Toc, ReadingProgress } from "bip-kit/react";
-import "bip-kit/styles.css";
+import { parseFrontmatter, parseContentBlocks, extractToc, readingTime } from "@bitbaum/bip-kit";
+import { ArticleBody, Toc, ReadingProgress } from "@bitbaum/bip-kit/react";
+import "@bitbaum/bip-kit/styles.css";
 
 export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -133,7 +133,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
 Diagrams? Mermaid is client-side and heavyweight, so it lives on its **own subpath** — it never enters your bundle unless you ask:
 
 ```tsx
-import { MermaidBlock } from "bip-kit/react/mermaid"; // requires the mermaid peer
+import { MermaidBlock } from "@bitbaum/bip-kit/react/mermaid"; // requires the mermaid peer
 
 <ArticleBody blocks={blocks} components={{ mermaid: MermaidBlock }} />;
 ```
@@ -231,7 +231,7 @@ The filename label and the copy button share a toolbar row (`.bp-codeblock-toolb
 **Deploying with `output: "standalone"`?** Because shiki is an *optional* peer, bip-kit's zero-config load goes through an import that bundlers (and Next.js output file tracing) cannot see — a standalone deploy would silently ship without shiki and lose highlighting. Register the loader once, at module scope (e.g. in your root layout), so the literal specifier lives in *your* code where the bundler and tracer can follow it:
 
 ```ts
-import { setHighlighterLoader } from "bip-kit/react";
+import { setHighlighterLoader } from "@bitbaum/bip-kit/react";
 setHighlighterLoader(() => import("shiki")); // one line; traceable; only if you use shiki
 ```
 
@@ -339,14 +339,14 @@ const blocks = parseContentBlocks(body);
 
 bip-kit will not grow a YAML parser; one already exists.
 
-## A folder of posts — `bip-kit/node`
+## A folder of posts — `@bitbaum/bip-kit/node`
 
 Every product was writing the same fifty lines: list `content/blog/*.md`, read
 the frontmatter, sort newest first, 404 a bad slug. `readCollection` is that
 reader, and it accepts every shape those products used:
 
 ```ts
-import { readCollection, readEntry } from "bip-kit/node";
+import { readCollection, readEntry } from "@bitbaum/bip-kit/node";
 
 const posts = readCollection(join(process.cwd(), "content", "blog"));
 const post = readEntry(join(process.cwd(), "content", "blog"), slug); // undefined → notFound()
@@ -387,8 +387,8 @@ Members. Safety decisions: people only, not AI agents.
 ```
 
 ```tsx
-import { parseFaq } from "bip-kit";
-import { Faq } from "bip-kit/react";
+import { parseFaq } from "@bitbaum/bip-kit";
+import { Faq } from "@bitbaum/bip-kit/react";
 
 const sections = parseFaq(readFileSync("content/faq.md", "utf8"));
 return <Faq sections={sections} />;
@@ -430,7 +430,7 @@ Non-Latin headings have no ASCII spelling, so under the default they strip to no
 Pass a policy through the `slugify` option — **to both calls**, since an id and the TOC link pointing at it are the same anchor:
 
 ```ts
-import { parseContentBlocks, extractToc, unicodeSlugify } from "bip-kit";
+import { parseContentBlocks, extractToc, unicodeSlugify } from "@bitbaum/bip-kit";
 
 const options = { slugify: unicodeSlugify };
 const blocks = parseContentBlocks(body, options);
@@ -440,22 +440,22 @@ const toc = extractToc(blocks, options); // same policy, or the two drift apart
 Any `SlugFn` (`(text: string) => string`) works, so you can compose rather than reimplement — de-duplication (`slug`, `slug-2`, …) and the `section` fallback for empty results are applied on top of whatever you return:
 
 ```ts
-import { slugify, type SlugFn } from "bip-kit";
+import { slugify, type SlugFn } from "@bitbaum/bip-kit";
 
 const prefixed: SlugFn = (text) => `sec-${slugify(text)}`;
 ```
 
-## The renderer — `bip-kit/react`
+## The renderer — `@bitbaum/bip-kit/react`
 
 Server components (RSC-first): `ArticleBody` (the one you usually need — an **async** server component that pre-awaits shiki/katex and emits a fully synchronous tree), plus `Figure`, `Gallery`, `Callout`, `PullQuote`, `Stats`, `Footnotes`, `CodeBlock`, `Chart`, `TableBlock`, `VideoEmbed`.
 
-Client islands (each tiny, dependency-free): `Toc` (sticky scroll-spy; hides itself under 3 headings), `ReadingProgress` (top-of-page hairline), `Lightbox` (figure/gallery zoom, Escape to close), `CopyButton`. And `MermaidBlock` on `bip-kit/react/mermaid` (theme colors resolved from your CSS vars at render time).
+Client islands (each tiny, dependency-free): `Toc` (sticky scroll-spy; hides itself under 3 headings), `ReadingProgress` (top-of-page hairline), `Lightbox` (figure/gallery zoom, Escape to close), `CopyButton`. And `MermaidBlock` on `@bitbaum/bip-kit/react/mermaid` (theme colors resolved from your CSS vars at render time).
 
 `ArticleBody` props: `blocks`, `components` (`{ mermaid }` override), `highlighter` (a loaded shiki module — see the code-block section), `lightbox` (default `true`), `className`.
 
 ## Theming contract
 
-`bip-kit/styles.css` is a complete neutral theme; every visual decision is a CSS custom property you may override — light, and dark via `@media (prefers-color-scheme)` plus an explicit `data-theme="dark" | "light"` attribute on `<html>` that always wins.
+`@bitbaum/bip-kit/styles.css` is a complete neutral theme; every visual decision is a CSS custom property you may override — light, and dark via `@media (prefers-color-scheme)` plus an explicit `data-theme="dark" | "light"` attribute on `<html>` that always wins.
 
 | Variable | Role |
 | --- | --- |
@@ -495,7 +495,7 @@ product supplies storage.
 
 ```ts
 // app/api/feedback/route.ts
-import { createFeedbackHandler, roadmapItemId, changelogEntryId } from "bip-kit";
+import { createFeedbackHandler, roadmapItemId, changelogEntryId } from "@bitbaum/bip-kit";
 import { ROADMAP, CHANGELOG } from "@/lib/config";
 import { store } from "@/lib/feedback-store"; // your FeedbackStore over your DB
 
@@ -513,7 +513,7 @@ export const { GET, POST } = createFeedbackHandler({
 
 ```tsx
 // on the roadmap page (client components; wrap once, place anywhere)
-import { FeedbackProvider, StanceButtons, CommentThread, SuggestBox } from "bip-kit/react";
+import { FeedbackProvider, StanceButtons, CommentThread, SuggestBox } from "@bitbaum/bip-kit/react";
 
 <FeedbackProvider endpoint="/api/feedback" targetIds={ids} labels={t.feedback}>
   {items.map((item) => (
