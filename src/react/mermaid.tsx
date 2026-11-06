@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * Mermaid client island — its OWN subpath (`bip-kit/react/mermaid`) so the
+ * Mermaid client island — its OWN subpath (`@bitbaum/bip-kit/react/mermaid`) so the
  * `mermaid` package never enters the module graph of consumers who don't
  * use it (bundlers fail builds on unresolvable imports, even dynamic ones).
  *
  * Usage:
- *   import { MermaidBlock } from "bip-kit/react/mermaid";
+ *   import { MermaidBlock } from "@bitbaum/bip-kit/react/mermaid";
  *   <ArticleBody blocks={blocks} components={{ mermaid: MermaidBlock }} />
  *
  * Theme colors resolve from the bp-* CSS vars at render time (ported from

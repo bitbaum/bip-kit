@@ -12,7 +12,7 @@ import { CopyButton } from "./copy-button.js";
  * would silently ship without shiki. Register the loader once in your app
  * (module scope, e.g. your root layout) so the specifier is traceable:
  *
- *   import { setHighlighterLoader } from "bip-kit/react";
+ *   import { setHighlighterLoader } from "@bitbaum/bip-kit/react";
  *   setHighlighterLoader(() => import("shiki"));
  *
  * Or pass a loaded module per render: `<ArticleBody highlighter={shiki} />`.

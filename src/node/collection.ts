@@ -22,7 +22,7 @@ import { extractToc, readingTime } from "../toc.js";
  * - `summary:`, `excerpt:` or `description:`, else the first paragraph.
  * - `draft: true` or `published: false` leaves the entry out.
  *
- * Node only (it reads the filesystem); import it from `bip-kit/node`. The
+ * Node only (it reads the filesystem); import it from `@bitbaum/bip-kit/node`. The
  * parsing it does is the same as everywhere else: `normalizeMarkdown`, then
  * `parseContentBlocks`.
  */

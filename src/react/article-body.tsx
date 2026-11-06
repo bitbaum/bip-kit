@@ -32,7 +32,7 @@ import {
  * Mermaid is a CLIENT concern and an optional peer, so it is NOT wired by
  * default (a bundler would fail on the import for consumers without it).
  * Pass it in: `components={{ mermaid: MermaidBlock }}` with
- * `import { MermaidBlock } from "bip-kit/react/mermaid"`.
+ * `import { MermaidBlock } from "@bitbaum/bip-kit/react/mermaid"`.
  */
 
 export interface ArticleBodyComponents {

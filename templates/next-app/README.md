@@ -10,6 +10,6 @@ app/
   changelog/page.tsx     → ChangelogEntry[]
 ```
 
-Wire `bip-kit` for parsing. Do not invent a second markdown dialect.
+Wire `@bitbaum/bip-kit` for parsing. Do not invent a second markdown dialect.
 
 See root README.

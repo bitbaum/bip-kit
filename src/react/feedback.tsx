@@ -13,7 +13,7 @@ import { findSimilar, VOTER_HEADER } from "../feedback.js";
 import type { FeedbackComment, Stance, Suggestion, Tally } from "../feedback.js";
 
 /**
- * The reader's side of `bip-kit` feedback: say "needed" or "not needed" about a
+ * The reader's side of `@bitbaum/bip-kit` feedback: say "needed" or "not needed" about a
  * roadmap item, comment on a change, suggest what is missing.
  *
  * Talks to an endpoint built with `createFeedbackHandler`. Every visible word is
