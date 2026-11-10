@@ -7,6 +7,16 @@ Same code, same version, same repository; the package now lives under the
 `@bitbaum/bip-kit` and import from it (`bip-kit` stays installable and is deprecated
 once no adopter uses it). No API changed.
 
+## 0.7.0 — 2026-11-10
+
+- Add cross-posting: `sharedArticle(entry, canonical)` turns a post into the
+  JSON another fleet product imports (`{ article: { title, body, excerpt,
+  canonical, author } }`, root-relative links made absolute against the
+  canonical URL), and `crossPostUrl(composerUrl, articleUrl, project?)` builds
+  the link that opens that product's composer filled in, optionally naming the
+  project whose wall the post should also go on. OrangeCat's article composer
+  reads this shape. The package stores no host; the app passes both URLs.
+
 ## 0.6.1 — 2026-10-26
 
 - Add `RoadmapDocument` and `ChangelogDocument` to `bip-kit/react` for rendering
