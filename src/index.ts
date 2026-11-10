@@ -25,6 +25,8 @@ export { parseChartSpec, validateChartSpec } from "./chart.js";
 export { slugify, unicodeSlugify, createSlugger } from "./slug.js";
 export { extractToc, readingTime } from "./toc.js";
 export { parseVideoEmbed, videoEmbedSrc } from "./video-embed.js";
+export { sharedArticle, crossPostUrl, absolutizeLinks } from "./share.js";
+export type { SharedArticle, ShareableEntry } from "./share.js";
 export { developmentProfileFromMap, loadDevelopmentProfile } from "./development.js";
 export type { DevelopmentProfile } from "./development.js";
 export { linkDevelopment, readRefs, phaseOf, changeAnchor } from "./development-links.js";
