@@ -140,7 +140,7 @@ import { MermaidBlock } from "@bitbaum/bip-kit/react/mermaid"; // requires the m
 
 Without the override, mermaid blocks render their source in a styled `<pre>` — honest degradation, never a broken build.
 
-`MermaidBlock` follows your theme however you switch it: an explicit `data-theme="light|dark"` on `<html>` wins, then a `light`/`dark` class (next-themes with `attribute="class"`, Tailwind's `.dark`), then the OS preference — and it re-renders live on any of them changing. Diagram colors resolve from your `--bp-*` tokens and are normalized to a form mermaid's color parser accepts, so tokens authored in `oklch()`/`lab()` (Tailwind v4 palettes) render correctly instead of blanking the diagram (fixed in 0.2.1).
+`MermaidBlock` follows your theme however you switch it: an explicit `data-theme="light|dark"` on `<html>` wins, then a `light`/`dark` class (next-themes with `attribute="class"`, Tailwind's `.dark`), then the OS preference — and it re-renders live on any of them changing. Diagram colors resolve from your `--bp-*` tokens and are normalized to a form mermaid's color parser accepts, so tokens authored in `oklch()`/`lab()` (Tailwind v4 palettes) render correctly instead of blanking the diagram (fixed in 0.2.1). Labels are sized from `--bp-diagram-text` and measured in the article's own face; a diagram wider than the column shrinks only until its labels reach `--bp-diagram-min-text`, then scrolls sideways (and takes keyboard focus) instead of shrinking further (0.8.2).
 
 ## The block vocabulary
 
@@ -464,6 +464,8 @@ Client islands (each tiny, dependency-free): `Toc` (sticky scroll-spy; hides its
 | `--bp-leading` | Body line-height (1.7) |
 | `--bp-measure` | Line length (70ch) |
 | `--bp-flow` | Vertical rhythm unit (1.5rem) |
+| `--bp-gutter` | Least space between the text and the screen edge (`clamp(1rem, 4vw, 1.5rem)`); a centred host column that already pads itself by this much gets none added |
+| `--bp-diagram-text` / `--bp-diagram-min-text` | Mermaid label size (0.875em of the body) and the smallest a wide diagram may shrink it to (`max(12px, 0.75em)`) before it scrolls sideways |
 | `--bp-radius` / `--bp-radius-sm` | Corner radii |
 | `--bp-bg` / `--bp-surface` | Page & raised-surface backgrounds |
 | `--bp-fg` / `--bp-fg-muted` / `--bp-fg-faint` | Text hierarchy |

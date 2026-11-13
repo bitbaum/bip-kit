@@ -10,7 +10,10 @@
  *   <ArticleBody blocks={blocks} components={{ mermaid: MermaidBlock }} />
  *
  * Theme colors resolve from the bp-* CSS vars at render time (ported from
- * loki's MermaidDiagram), so diagrams follow the consumer's tokens.
+ * loki's MermaidDiagram), so diagrams follow the consumer's tokens. So does the
+ * label size: `--bp-diagram-text` (default 0.875em of the body text), never
+ * shrunk below `--bp-diagram-min-text` (default the larger of 12px and 0.75em)
+ * to fit a phone; a diagram too wide for that scrolls sideways instead.
  */
 
 import type { ReactNode } from "react";
@@ -123,6 +126,66 @@ function subscribeDark(onChange: () => void): () => void {
 }
 const getServerDark = () => false;
 
+/**
+ * Mermaid's config for one render, pure over its inputs (exported for tests).
+ * `fontSize` is the label size in px, resolved from `--bp-diagram-text`: Mermaid
+ * lays every box out around it, and flowcharts read it from `themeVariables`
+ * while sequence diagrams read their own three keys, so all of them are set.
+ * `fontFamily` is the face the labels are DRAWN in: Mermaid sizes each box by
+ * measuring its text, and measured with "inherit" it measured the page's face
+ * rather than the article's, so labels were cut off ("Smal", "$1–5k / mont").
+ */
+export function mermaidConfig(input: {
+  dark: boolean;
+  fontSize: number;
+  fontFamily?: string;
+  themeVariables?: Record<string, string>;
+}) {
+  const px = Math.round(input.fontSize * 100) / 100;
+  return {
+    startOnLoad: false,
+    theme: input.dark ? ("dark" as const) : ("default" as const),
+    fontFamily: input.fontFamily || "inherit",
+    fontSize: px,
+    sequence: { actorFontSize: px, messageFontSize: px, noteFontSize: px },
+    themeVariables: {
+      ...input.themeVariables,
+      fontSize: `${px}px`,
+      ...(input.fontFamily ? { fontFamily: input.fontFamily } : {}),
+    },
+  };
+}
+
+/**
+ * The narrowest a rendered diagram may be drawn, in px (exported for tests).
+ * Mermaid draws its SVG at `viewBoxWidth` with labels at `fontSize`; scaling
+ * it down to fit a phone scales the labels with it. It may shrink until they
+ * reach `minFontSize` and no further: past that the box scrolls sideways.
+ */
+export function diagramMinWidth(input: {
+  viewBoxWidth: number;
+  fontSize: number;
+  minFontSize: number;
+}): number {
+  const { viewBoxWidth, fontSize, minFontSize } = input;
+  if (!(viewBoxWidth > 0) || !(fontSize > 0)) return 0;
+  const scale = Math.min(1, Math.max(0, minFontSize) / fontSize);
+  return Math.ceil(viewBoxWidth * scale);
+}
+
+// Resolves a length custom property to px by letting the browser compute it as
+// a font-size inside the diagram box, so `em` means the body text there.
+function resolveFontSizeVar(host: HTMLElement, cssVar: string, fallback: number): number {
+  const el = document.createElement("span");
+  el.style.position = "absolute";
+  el.style.visibility = "hidden";
+  el.style.fontSize = `var(${cssVar})`;
+  host.appendChild(el);
+  const px = parseFloat(getComputedStyle(el).fontSize);
+  el.remove();
+  return Number.isFinite(px) && px > 0 ? px : fallback;
+}
+
 const LIGHT = { surface: "#f6f6f4", text: "#1a1a18", line: "#8a8a86" };
 const DARK = { surface: "#26262a", text: "#e8e8e6", line: "#8a8a90" };
 
@@ -135,35 +198,46 @@ export function MermaidBlock({ code }: { code: string }): ReactNode {
     let cancelled = false;
     import("mermaid")
       .then((m) => {
-        if (cancelled) return;
+        if (cancelled || !ref.current) return;
         const fallback = dark ? DARK : LIGHT;
-        const base = {
-          startOnLoad: false,
-          theme: dark ? ("dark" as const) : ("default" as const),
-          fontFamily: "inherit",
-        };
+        const fontSize = resolveFontSizeVar(ref.current, "--bp-diagram-text", 15);
+        const minFontSize = resolveFontSizeVar(ref.current, "--bp-diagram-min-text", 12);
+        const fontFamily = getComputedStyle(ref.current).fontFamily;
         try {
-          m.default.initialize({
-            ...base,
-            themeVariables: {
-              background: "transparent",
-              primaryColor: resolveColorVar("--bp-surface", fallback.surface),
-              primaryTextColor: resolveColorVar("--bp-fg", fallback.text),
-              lineColor: resolveColorVar("--bp-fg-muted", fallback.line),
-              edgeLabelBackground: resolveColorVar("--bp-bg", fallback.surface),
-              clusterBkg: resolveColorVar("--bp-surface", fallback.surface),
-            },
-          });
+          m.default.initialize(
+            mermaidConfig({
+              dark,
+              fontSize,
+              fontFamily,
+              themeVariables: {
+                background: "transparent",
+                primaryColor: resolveColorVar("--bp-surface", fallback.surface),
+                primaryTextColor: resolveColorVar("--bp-fg", fallback.text),
+                lineColor: resolveColorVar("--bp-fg-muted", fallback.line),
+                edgeLabelBackground: resolveColorVar("--bp-bg", fallback.surface),
+                clusterBkg: resolveColorVar("--bp-surface", fallback.surface),
+              },
+            }),
+          );
         } catch {
           // A theme value Mermaid cannot parse must cost the reader the THEME,
           // not the diagram. initialize() runs outside render()'s promise
           // chain, so an uncaught throw here silently skipped rendering.
-          m.default.initialize(base);
+          m.default.initialize(mermaidConfig({ dark, fontSize, fontFamily }));
         }
         m.default
           .render(`bp-mermaid-${id}-${dark ? "d" : "l"}`, code)
           .then(({ svg }: { svg: string }) => {
-            if (!cancelled && ref.current) ref.current.innerHTML = svg;
+            const box = ref.current;
+            if (cancelled || !box) return;
+            box.innerHTML = svg;
+            const drawn = box.querySelector("svg");
+            const viewBoxWidth = drawn?.viewBox?.baseVal?.width ?? 0;
+            const minWidth = diagramMinWidth({ viewBoxWidth, fontSize, minFontSize });
+            if (drawn && minWidth > 0) drawn.style.minWidth = `${minWidth}px`;
+            // A diagram wider than the box scrolls; a keyboard has to reach it.
+            if (box.scrollWidth > box.clientWidth) box.tabIndex = 0;
+            else box.removeAttribute("tabindex");
           })
           .catch(() => {
             if (!cancelled && ref.current) {
