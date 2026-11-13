@@ -32,6 +32,9 @@
   --bp-bg: #fdfdfc;
   --bp-surface: #f4f4f2;
   --bp-fg: #1c1c1a;
+  /* Ink on a --bp-fg fill. Not --bp-bg: a host may set that transparent to let
+     its own page show through, which would erase the text. */
+  --bp-on-fg: #fdfdfc;
   --bp-fg-muted: #5c5c58;
   --bp-fg-faint: #92928c;
   --bp-border: #e4e4e0;
@@ -258,6 +261,7 @@
     --bp-bg: #141416;
     --bp-surface: #1f1f23;
     --bp-fg: #ececea;
+    --bp-on-fg: #141416;
     --bp-fg-muted: #a4a4a0;
     --bp-fg-faint: #6e6e6a;
     --bp-border: #2e2e32;
@@ -286,6 +290,7 @@
   --bp-bg: #141416;
   --bp-surface: #1f1f23;
   --bp-fg: #ececea;
+  --bp-on-fg: #141416;
   --bp-fg-muted: #a4a4a0;
   --bp-fg-faint: #6e6e6a;
   --bp-border: #2e2e32;
@@ -1501,7 +1506,7 @@
 .bp-share-primary {
   border-color: var(--bp-fg);
   background: var(--bp-fg);
-  color: var(--bp-bg);
+  color: var(--bp-on-fg);
   font-weight: 600;
 }
 
