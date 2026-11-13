@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { JSX } from "react";
 import { loadPeer } from "./peers.js";
 
 /**
@@ -30,7 +30,7 @@ export interface MathViewProps {
   html?: string | null;
 }
 
-export function MathView({ tex, display, html }: MathViewProps): ReactNode {
+export function MathView({ tex, display, html }: MathViewProps): JSX.Element | null {
   if (html) {
     return (
       <div
@@ -51,7 +51,7 @@ export async function MathBlock({
   block,
 }: {
   block: { tex: string; display: boolean };
-}): Promise<ReactNode> {
+}): Promise<JSX.Element | null> {
   const html = await renderMath(block.tex, block.display);
   return <MathView tex={block.tex} display={block.display} html={html} />;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import type { JSX } from "react";
 import { useEffect, useState, type ReactNode } from "react";
 
 /**
@@ -14,7 +15,7 @@ export function Lightbox({
   src: string;
   alt: string;
   children: ReactNode;
-}): ReactNode {
+}): JSX.Element | null {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { JSX } from "react";
 import { useEffect, useRef, useState } from "react";
 import { shareLinks } from "../share.js";
 import type { ShareLinkId } from "../share.js";
@@ -74,7 +74,7 @@ export function ShareRow({
   exclude,
   labels,
   linkLabels,
-}: ShareRowProps): ReactNode {
+}: ShareRowProps): JSX.Element | null {
   const words = { ...defaultShareRowLabels, ...labels };
   // Feature-detected after mount, so the server HTML and the first client
   // render agree; the button appears once the browser says it can share.

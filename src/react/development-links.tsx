@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import type { Advance, LinkedGoal } from "../development-links.js";
 import { safeHref } from "./inline.js";
 
@@ -41,7 +41,7 @@ export function RoadmapTrail({
   goal: LinkedGoal;
   changelogHref?: string;
   labels?: Partial<typeof developmentLinkLabels>;
-}): ReactNode {
+}): JSX.Element | null {
   const labels = { ...developmentLinkLabels, ...supplied };
   if (goal.steps.length === 0 && goal.deliveredIn.length === 0) return null;
   return (
@@ -93,7 +93,7 @@ export function ChangeAdvances({
   advances: Advance[];
   roadmapHref?: string;
   labels?: Partial<typeof developmentLinkLabels>;
-}): ReactNode {
+}): JSX.Element | null {
   const labels = { ...developmentLinkLabels, ...supplied };
   if (advances.length === 0) return null;
   return (
