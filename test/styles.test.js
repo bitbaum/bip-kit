@@ -237,3 +237,15 @@ test("every list the renderer emits states its markers, one way or the other", (
     );
   }
 });
+
+test("the share row is one line that scrolls sideways, with 44px targets", () => {
+  const list = ruleBody(".bp-share-list");
+  assert.ok(list, ".bp-share-list rule not found");
+  assert.match(list, /flex-wrap:\s*nowrap/);
+  assert.match(list, /overflow-x:\s*auto/);
+  assert.match(list, /list-style-type:\s*none/);
+  const action = ruleBody(".bp-share-action");
+  assert.ok(action, ".bp-share-action rule not found");
+  assert.match(action, /min-height:\s*44px/);
+  assert.match(action, /white-space:\s*nowrap/);
+});

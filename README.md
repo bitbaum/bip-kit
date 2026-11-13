@@ -477,6 +477,42 @@ Client islands (each tiny, dependency-free): `Toc` (sticky scroll-spy; hides its
 
 Retheme by redefining vars on `:root` (and your dark scope) — zero rule overrides needed. Components emit **semantic classes only** (`bp-p`, `bp-h2`, `bp-callout bp-callout--warn`, `bp-figure`, …), so a from-scratch stylesheet is equally supported.
 
+## Sharing — cross-post first, then everywhere else
+
+A post can be spread in one row: the app's own place to post it first, then the
+device share sheet, "Copy link", and X, LinkedIn, Bluesky, Hacker News,
+WhatsApp, Telegram and email. The package stores no host or product name; the
+app passes them in.
+
+```ts
+// app/blog/[slug]/article.json/route.ts — the post as importable JSON
+export const GET = async (_: Request, { params }) =>
+  Response.json(sharedArticle(await getPost((await params).slug), canonicalUrl));
+```
+
+```tsx
+import { crossPostUrl } from "@bitbaum/bip-kit";
+import { ShareRow } from "@bitbaum/bip-kit/react";
+
+<ShareRow
+  url={canonicalUrl}
+  title={post.title}
+  summary={post.summary}
+  crossPost={{
+    href: crossPostUrl("https://orangecat.ch/articles/new", `${canonicalUrl}/article.json`),
+    label: "Post on OrangeCat",
+  }}
+/>;
+```
+
+The cross-post is the row's one primary action. Many choices make one line that
+scrolls sideways; every target is at least 44px; "Share…" appears only where the
+browser offers `navigator.share`. `exclude={["hackernews"]}` drops a service,
+`labels` and `linkLabels` translate every word. Without React,
+`shareLinks({ url, title, summary? })` returns the same `{ id, label, href }[]`;
+each href is the service's documented share or intent URL (sources in
+`src/share.ts`). Reddit is not in the list: it documents no share URL to cite.
+
 ## Feedback — let people answer the roadmap and the changelog
 
 > **In bitbaum products, a vote goes through Solon, not this module.** Voting

@@ -7,6 +7,18 @@ Same code, same version, same repository; the package now lives under the
 `@bitbaum/bip-kit` and import from it (`bip-kit` stays installable and is deprecated
 once no adopter uses it). No API changed.
 
+## 0.8.0 — 2026-11-13
+
+- Add `shareLinks({ url, title, summary?, labels? })`: the ordered
+  `{ id, label, href }[]` for X, LinkedIn, Bluesky, Hacker News, WhatsApp,
+  Telegram and email, each built from the service's documented share or intent
+  URL (cited in `src/share.ts`). Labels are verbs and can be replaced.
+- Add `ShareRow` to `@bitbaum/bip-kit/react`: the app's cross-post action first
+  (the one primary action), "Share…" where the browser has a share sheet,
+  "Copy link", then the `shareLinks` services, in one line that scrolls sideways
+  with 44px targets, inside a "Share this post" landmark. Styled by new
+  `bp-share*` rules in `styles.css` using the existing `--bp-*` variables.
+
 ## 0.7.1 — 2026-11-13
 
 - Every exported React component now states its return type (`ReactNode`, or

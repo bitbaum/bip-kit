@@ -29,6 +29,7 @@ import { join } from "node:path";
 
 const PUBLIC_API = [
   "parseContentBlocks",
+  "shareLinks",
   "parseFrontmatter",
   "parseInline",
   "parseChartSpec",
@@ -49,6 +50,7 @@ const NODE_API = ["readCollection", "readEntry"];
 
 const REACT_API = [
   "ArticleBody",
+  "ShareRow",
   "Figure",
   "Gallery",
   "Callout",
