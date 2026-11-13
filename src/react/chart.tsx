@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ChartSpec } from "../chart.js";
 
 /**
@@ -26,7 +27,7 @@ function formatTick(value: number): string {
   return String(Math.round(value * 100) / 100);
 }
 
-export function Chart({ spec }: { spec: ChartSpec }) {
+export function Chart({ spec }: { spec: ChartSpec }): ReactNode {
   // Categories: union of point labels, in order of first appearance.
   const categories: string[] = [];
   for (const series of spec.series) {

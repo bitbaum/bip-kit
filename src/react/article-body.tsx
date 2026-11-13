@@ -209,7 +209,7 @@ export async function ArticleBody({
   highlighter,
   lightbox = true,
   className,
-}: ArticleBodyProps) {
+}: ArticleBodyProps): Promise<ReactNode> {
   const enriched: Enriched = new WeakMap();
   await enrich(blocks, enriched, highlighter);
   const ctx: RenderContext = { enriched, components, lightbox };

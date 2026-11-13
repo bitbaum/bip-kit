@@ -123,7 +123,7 @@ export function FeedbackProvider({
   targetIds: readonly string[];
   labels?: Partial<FeedbackLabels>;
   children: ReactNode;
-}) {
+}): ReactNode {
   const [tallies, setTallies] = useState<Record<string, Tally>>({});
   const [mine, setMine] = useState<Record<string, Stance>>({});
   const merged = useMemo(() => ({ ...defaultFeedbackLabels, ...labels }), [labels]);
@@ -181,7 +181,7 @@ const fillIn = (s: string, v: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (m, k: string) => String(v[k] ?? m));
 
 /** "Needed" / "Not needed", each with its count. Pressing your own choice again withdraws it. */
-export function StanceButtons({ targetId }: { targetId: string }) {
+export function StanceButtons({ targetId }: { targetId: string }): ReactNode {
   const { labels, tallies, mine, setStance } = useFeedbackState();
   const [busy, setBusy] = useState(false);
   const tally = tallies[targetId] ?? { needed: 0, notNeeded: 0, comments: 0 };
@@ -227,7 +227,7 @@ export function StanceButtons({ targetId }: { targetId: string }) {
 }
 
 /** A collapsed comment thread under a changelog entry or roadmap item. */
-export function CommentThread({ targetId }: { targetId: string }) {
+export function CommentThread({ targetId }: { targetId: string }): ReactNode {
   const { endpoint, labels, tallies, bumpComments } = useFeedbackState();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<FeedbackComment[] | null>(null);
@@ -319,7 +319,7 @@ export function CommentThread({ targetId }: { targetId: string }) {
  * support instead of by near-identical rows. The server repeats the check, so
  * a client that skips it gains nothing.
  */
-export function SuggestBox() {
+export function SuggestBox(): ReactNode {
   const { endpoint, labels } = useFeedbackState();
   const [existing, setExisting] = useState<Suggestion[]>([]);
   const [text, setText] = useState("");

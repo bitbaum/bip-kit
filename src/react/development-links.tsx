@@ -41,7 +41,7 @@ export function RoadmapTrail({
   goal: LinkedGoal;
   changelogHref?: string;
   labels?: Partial<typeof developmentLinkLabels>;
-}) {
+}): ReactNode {
   const labels = { ...developmentLinkLabels, ...supplied };
   if (goal.steps.length === 0 && goal.deliveredIn.length === 0) return null;
   return (

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { FaqSection } from "../faq.js";
 import { faqJsonLd } from "../faq.js";
 import { ArticleBody, type ArticleBodyComponents } from "./article-body.js";
@@ -16,7 +17,12 @@ export interface FaqProps {
  * keeps its id, so `/faq#do-i-need-an-account` lands on that question (and
  * highlights it via `:target`).
  */
-export async function Faq({ sections, structuredData = true, components, className }: FaqProps) {
+export async function Faq({
+  sections,
+  structuredData = true,
+  components,
+  className,
+}: FaqProps): Promise<ReactNode> {
   const bodies = await Promise.all(
     sections.map((s) =>
       Promise.all(

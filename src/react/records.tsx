@@ -25,7 +25,7 @@ export function RoadmapDocument({
   className,
   essayHref = (href) => href,
   essayLink,
-}: RoadmapDocumentProps) {
+}: RoadmapDocumentProps): ReactNode {
   const Heading = `h${headingLevel}` as ElementType;
   const BucketHeading = `h${headingLevel + 1}` as ElementType;
   const ItemHeading = `h${Math.min(6, headingLevel + 2)}` as ElementType;
@@ -104,7 +104,7 @@ export function ChangelogDocument({
   className,
   formatDate = (date) => date,
   tagLabels = {},
-}: ChangelogDocumentProps) {
+}: ChangelogDocumentProps): ReactNode {
   const labels = { ...defaultTagLabels, ...tagLabels };
   return (
     <ol className={["bp-changelog", className].filter(Boolean).join(" ")} lang={lang}>

@@ -7,6 +7,13 @@ Same code, same version, same repository; the package now lives under the
 `@bitbaum/bip-kit` and import from it (`bip-kit` stays installable and is deprecated
 once no adopter uses it). No API changed.
 
+## 0.7.1 — 2026-11-13
+
+- Every exported React component now states its return type (`ReactNode`, or
+  `Promise<ReactNode>` for the async ones). Building the package from its Git
+  release with a newer `@types/react` failed with TS2883 ("the inferred type
+  cannot be named"), which blocked consumers installing it from Git.
+
 ## 0.7.0 — 2026-11-10
 
 - Add cross-posting: `sharedArticle(entry, canonical)` turns a post into the

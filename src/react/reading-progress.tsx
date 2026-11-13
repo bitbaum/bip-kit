@@ -1,12 +1,13 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 /**
  * A thin top-of-page reading-progress hairline that tracks scroll depth —
  * tasteful, not gamified. Generalized from orangecat's article bar.
  */
-export function ReadingProgress() {
+export function ReadingProgress(): ReactNode {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
