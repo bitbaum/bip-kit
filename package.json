@@ -1,6 +1,6 @@
 {
   "name": "@bitbaum/bip-kit",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Building in Public, as a content contract: parse markdown into typed blocks and render them with a reference React renderer (@bitbaum/bip-kit/react) \u2014 blog, roadmap, changelog on your product site, bring your own design tokens.",
   "license": "MIT",
   "author": "Mao Nakamoto",

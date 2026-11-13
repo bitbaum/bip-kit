@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { loadPeer, peerDisabled, setPeerLoader, type PeerImporter } from "./peers.js";
 import { CopyButton } from "./copy-button.js";
 
@@ -86,7 +87,7 @@ export interface CodeBlockViewProps {
  * the code in DOM order, so keyboard and screen-reader users reach "copy"
  * before the thing it copies.
  */
-export function CodeBlockView({ code, lang, filename, html }: CodeBlockViewProps) {
+export function CodeBlockView({ code, lang, filename, html }: CodeBlockViewProps): ReactNode {
   return (
     <figure className="bp-codeblock" data-lang={lang || undefined}>
       <div className="bp-codeblock-body">
@@ -114,7 +115,7 @@ export async function CodeBlock({
   block: { lang: string; text: string };
   /** A loaded shiki module (`import * as shiki from "shiki"`) — the traceable alternative to `setHighlighterLoader`. */
   highlighter?: ShikiHighlighter | null;
-}) {
+}): Promise<ReactNode> {
   const { lang, filename } = splitFenceInfo(block.lang);
   const html = await highlightCode(block.text, lang, highlighter);
   return <CodeBlockView code={block.text} lang={lang} filename={filename} html={html} />;

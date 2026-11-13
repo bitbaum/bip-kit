@@ -1,9 +1,10 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
 /** Copy-to-clipboard affordance for code blocks. Tiny, dependency-free. */
-export function CopyButton({ text }: { text: string }) {
+export function CopyButton({ text }: { text: string }): ReactNode {
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 

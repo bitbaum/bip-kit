@@ -14,7 +14,7 @@ export function Lightbox({
   src: string;
   alt: string;
   children: ReactNode;
-}) {
+}): ReactNode {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {

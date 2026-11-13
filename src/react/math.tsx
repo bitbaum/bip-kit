@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { loadPeer } from "./peers.js";
 
 /**
@@ -29,7 +30,7 @@ export interface MathViewProps {
   html?: string | null;
 }
 
-export function MathView({ tex, display, html }: MathViewProps) {
+export function MathView({ tex, display, html }: MathViewProps): ReactNode {
   if (html) {
     return (
       <div
@@ -46,7 +47,11 @@ export function MathView({ tex, display, html }: MathViewProps) {
 }
 
 /** Async server component: renders with KaTeX when present. */
-export async function MathBlock({ block }: { block: { tex: string; display: boolean } }) {
+export async function MathBlock({
+  block,
+}: {
+  block: { tex: string; display: boolean };
+}): Promise<ReactNode> {
   const html = await renderMath(block.tex, block.display);
   return <MathView tex={block.tex} display={block.display} html={html} />;
 }

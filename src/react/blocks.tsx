@@ -19,7 +19,7 @@ export interface FigureProps {
   lightbox?: boolean;
 }
 
-export function Figure({ src, alt, caption, spans, lightbox = true }: FigureProps) {
+export function Figure({ src, alt, caption, spans, lightbox = true }: FigureProps): ReactNode {
   const img = <img className="bp-img" src={src} alt={alt} loading="lazy" />;
   return (
     <figure className="bp-figure">
@@ -43,7 +43,7 @@ export function Gallery({
 }: {
   images: { src: string; alt: string; caption?: string }[];
   lightbox?: boolean;
-}) {
+}): ReactNode {
   return (
     <div className="bp-gallery" data-count={images.length}>
       {images.map((image, i) => (
@@ -74,7 +74,7 @@ export function Callout({
   kind: CalloutKind;
   title?: string;
   children: ReactNode;
-}) {
+}): ReactNode {
   return (
     <aside className={`bp-callout bp-callout--${kind}`}>
       <p className="bp-callout-title">{title ?? CALLOUT_LABELS[kind]}</p>
@@ -91,7 +91,7 @@ export function PullQuote({
   text: string;
   spans?: Inline[];
   cite?: string;
-}) {
+}): ReactNode {
   return (
     <figure className="bp-pullquote">
       <blockquote className="bp-pullquote-text">{renderInline(spansOf(text, spans))}</blockquote>
@@ -100,7 +100,7 @@ export function PullQuote({
   );
 }
 
-export function Stats({ items }: { items: { value: string; label: string }[] }) {
+export function Stats({ items }: { items: { value: string; label: string }[] }): ReactNode {
   return (
     <dl className="bp-stats" data-count={items.length}>
       {items.map((item, i) => (
@@ -119,7 +119,7 @@ export interface FootnoteEntry {
 }
 
 /** End-of-article footnote list with backlinks to each reference. */
-export function Footnotes({ notes }: { notes: FootnoteEntry[] }) {
+export function Footnotes({ notes }: { notes: FootnoteEntry[] }): ReactNode {
   if (notes.length === 0) return null;
   return (
     <section className="bp-footnotes" aria-label="Footnotes">
@@ -142,7 +142,7 @@ export function Footnotes({ notes }: { notes: FootnoteEntry[] }) {
 }
 
 /** Allowlisted video embed (YouTube nocookie / Vimeo); anything else is a link. */
-export function VideoEmbed({ url, title }: { url: string; title?: string }) {
+export function VideoEmbed({ url, title }: { url: string; title?: string }): ReactNode {
   const parsed = parseVideoEmbed(url);
   if (!parsed) {
     const href = safeHref(url);
@@ -172,7 +172,7 @@ export function VideoEmbed({ url, title }: { url: string; title?: string }) {
   );
 }
 
-export function TableBlock({ headers, rows }: { headers: string[]; rows: string[][] }) {
+export function TableBlock({ headers, rows }: { headers: string[]; rows: string[][] }): ReactNode {
   return (
     <div className="bp-table-wrap">
       <table className="bp-table">

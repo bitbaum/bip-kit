@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { DevelopmentProfile } from "../development.js";
 import { linkDevelopment } from "../development-links.js";
 import { ChangeAdvances, RoadmapTrail, linkedText } from "./development-links.js";
@@ -34,7 +35,7 @@ export function DevelopmentPage({
   roadmapHref?: string;
   changelogHref?: string;
   labels?: Partial<typeof developmentLabels>;
-}) {
+}): ReactNode {
   const labels = { ...developmentLabels, ...suppliedLabels };
   const linked = profile ? linkDevelopment(profile) : null;
   return (
