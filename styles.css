@@ -1442,3 +1442,80 @@
   outline-offset: 0.25rem;
   border-radius: 0.25rem;
 }
+
+/* ── Share row ──────────────────────────────────────────────────────── */
+
+/* Many choices → one line that scrolls sideways, never pills that wrap
+   (fleet AGENTS.md, "One shape per kind"). Lists restate list-style because
+   consumer resets remove it anyway; here it is "none" on purpose. */
+.bp-share {
+  margin-block: var(--bp-flow);
+}
+
+.bp-share-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0 0 0.25rem;
+  list-style-type: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bp-share-list > li {
+  flex: none;
+  margin: 0;
+}
+
+.bp-share-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-sm);
+  background: var(--bp-bg);
+  color: var(--bp-fg);
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.bp-share-action:hover {
+  background: var(--bp-surface);
+}
+
+.bp-share-action:focus-visible {
+  outline: 2px solid var(--bp-accent);
+  outline-offset: 2px;
+}
+
+/* The one primary action: monochrome, inverted, no brand colour. */
+.bp-share-primary {
+  border-color: var(--bp-fg);
+  background: var(--bp-fg);
+  color: var(--bp-bg);
+  font-weight: 600;
+}
+
+.bp-share-primary:hover {
+  background: var(--bp-fg);
+  opacity: 0.88;
+}
+
+.bp-share-action[data-copied] {
+  color: var(--bp-tip);
+}
+
+@media print {
+  .bp-share {
+    display: none;
+  }
+}
