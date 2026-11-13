@@ -23,6 +23,13 @@
   --bp-leading: 1.7;
   --bp-measure: 70ch;
   --bp-flow: 1.5rem; /* vertical rhythm unit */
+  /* The least space between the text and the edge of the SCREEN. A host column
+     that already pads itself by this much gets none added (see .bp-article). */
+  --bp-gutter: clamp(1rem, 4vw, 1.5rem);
+  /* Diagram labels, relative to the body text they sit in, and the smallest a
+     wide diagram may shrink them to before it scrolls sideways instead. */
+  --bp-diagram-text: 0.875em;
+  --bp-diagram-min-text: max(12px, 0.75em);
 
   /* Shape */
   --bp-radius: 12px;
@@ -316,10 +323,18 @@
 
 /* ── Article base ───────────────────────────────────────────────────── */
 
+/* The gutter is measured to the screen edge, not added to the host's own:
+   (100vw - 100%) / 2 is how far a centred host column already sits from each
+   edge (a padding percentage is of the containing block), so a phone column
+   with 20px of its own padding gets no second 16px, and a host with none gets
+   the whole gutter at every width, including 720px to the measure, where it
+   used to drop to zero and the text touched the glass. content-box keeps the
+   measure the measure under a border-box reset. */
 .bp-article {
+  box-sizing: content-box;
   max-width: var(--bp-measure);
   margin-inline: auto;
-  padding-inline: 1rem;
+  padding-inline: max(0px, calc(var(--bp-gutter) - (100vw - 100%) / 2));
   font-family: var(--bp-font-sans);
   font-size: var(--bp-size);
   line-height: var(--bp-leading);
@@ -332,7 +347,6 @@
 @media (min-width: 720px) {
   .bp-article {
     --bp-size: 1.125rem; /* 18px on wide screens */
-    padding-inline: 0;
   }
 }
 
@@ -768,9 +782,11 @@
 
 /* ── Mermaid & math ─────────────────────────────────────────────────── */
 
+/* A block, not a centred flex row: a flex row centres an overflowing diagram
+   past its own left edge, where no scrollbar can reach. The SVG centres itself
+   with auto margins, which fall to zero once it is wider than the box. */
 .bp-mermaid {
-  display: flex;
-  justify-content: center;
+  display: block;
   overflow-x: auto;
   margin: calc(var(--bp-flow) * 1.2) 0;
   padding: 1rem;
@@ -779,9 +795,18 @@
   background: var(--bp-surface);
 }
 
+/* MermaidBlock sets an inline min-width so the labels never shrink below
+   --bp-diagram-min-text; past that the box scrolls. */
 .bp-mermaid svg {
+  display: block;
+  margin-inline: auto;
   max-width: 100%;
   height: auto;
+}
+
+.bp-mermaid:focus-visible {
+  outline: 2px solid var(--bp-accent);
+  outline-offset: 2px;
 }
 
 .bp-mermaid--fallback,
@@ -1097,6 +1122,7 @@
 
   .bp-article {
     max-width: none;
+    padding-inline: 0;
     font-size: 11pt;
   }
 

@@ -7,6 +7,28 @@ Same code, same version, same repository; the package now lives under the
 `@bitbaum/bip-kit` and import from it (`bip-kit` stays installable and is deprecated
 once no adopter uses it). No API changed.
 
+## 0.8.2 — 2026-11-13
+
+- Mermaid labels were unreadable on a phone. A wide diagram was scaled to fit
+  the column, and its labels with it: on orangecat.ch at 390px they measured
+  4.1–9.4px against 17px body text (8.7px at 1440px). `MermaidBlock` now sets
+  the label size from `--bp-diagram-text` (default 0.875em of the body) for
+  flowcharts and sequence diagrams alike, lets a wide diagram shrink only until
+  its labels reach `--bp-diagram-min-text` (default `max(12px, 0.75em)`), and
+  past that the box scrolls sideways and takes keyboard focus. `.bp-mermaid` is
+  no longer a centred flex row, which pushed an overflowing diagram's left side
+  out of scroll reach.
+- Mermaid boxes cut their labels short ("Smal", "$1–5k / mont"): Mermaid
+  measured text with `fontFamily: "inherit"` and drew it in the article's face.
+  It now measures in the face it draws in.
+- The long-form gutter is measured to the screen edge: `--bp-gutter` (default
+  `clamp(1rem, 4vw, 1.5rem)`) minus however far a centred host column already
+  sits from it. A host column with its own padding no longer gets a second
+  16px on a phone (OrangeCat's text sat 16px inside its own title), and a host
+  with none keeps the gutter from 720px up to the measure, where it used to drop
+  to zero and the text touched the edge. `.bp-article` is `content-box`, so a
+  border-box reset no longer narrows the measure.
+
 ## 0.8.1 — 2026-11-13
 
 - The share row's primary action ("Post on …") lost its label on hosts that set

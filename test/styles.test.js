@@ -269,3 +269,34 @@ test("ink on a --bp-fg fill never comes from --bp-bg, which hosts may make trans
     "--bp-on-fg is set for light, dark media and [data-theme=dark]",
   );
 });
+
+test("the article gutter is measured to the screen edge, at every width", () => {
+  const article = ruleBody(".bp-article");
+  assert.ok(article, ".bp-article rule not found in styles.css");
+  assert.match(
+    article,
+    /padding-inline:\s*max\(0px,\s*calc\(var\(--bp-gutter\)\s*-\s*\(100vw - 100%\)\s*\/\s*2\)\)/,
+    "the gutter must subtract the host column's own distance from the screen edge, " +
+      "or a padded host column gets the gutter twice",
+  );
+  assert.match(article, /box-sizing:\s*content-box/, "a border-box reset would eat the measure");
+  assert.doesNotMatch(
+    css,
+    /@media \(min-width: 720px\)\s*\{\s*\.bp-article\s*\{[^}]*padding-inline:\s*0/,
+    "the gutter dropped to zero at 720px and text touched the screen edge up to the measure",
+  );
+  assert.match(css, /--bp-gutter:/, "--bp-gutter needs a default");
+});
+
+test("a wide diagram scrolls from its left edge instead of being centred past it", () => {
+  const box = ruleBody(".bp-mermaid");
+  assert.ok(box, ".bp-mermaid rule not found in styles.css");
+  assert.match(box, /overflow-x:\s*auto/);
+  assert.doesNotMatch(
+    box,
+    /justify-content:\s*center/,
+    "a centred flex row pushes an overflowing diagram's left side out of scroll reach",
+  );
+  assert.match(css, /--bp-diagram-text:/, "--bp-diagram-text needs a default");
+  assert.match(css, /--bp-diagram-min-text:\s*max\(12px/, "diagram labels floor at 12px or more");
+});
