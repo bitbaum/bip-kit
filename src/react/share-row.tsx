@@ -15,6 +15,8 @@ export interface ShareRowLabels {
   copied: string;
   /** Shown in the prompt when the clipboard refuses, so the link can still be copied by hand. */
   copyManually: string;
+  /** Shown beside "Copy link" when the content is not public (`audience: "restricted"`). */
+  restrictedNote: string;
 }
 
 export const defaultShareRowLabels: ShareRowLabels = {
@@ -23,7 +25,17 @@ export const defaultShareRowLabels: ShareRowLabels = {
   copy: "Copy link",
   copied: "Link copied",
   copyManually: "Copy this link",
+  restrictedNote: "Only people who can already see this can open the link.",
 };
+
+/**
+ * The app's own place to post it, shown first as the row's one primary action.
+ * A link (`href`, e.g. a composer on another site, opened in a new tab unless
+ * `newTab: false`) or an action in place (`onClick`, e.g. a repost sheet).
+ */
+export type CrossPost =
+  | { label: string; href: string; newTab?: boolean; onClick?: never }
+  | { label: string; onClick: () => void; href?: never; newTab?: never };
 
 export interface ShareRowProps {
   /** The post's public, absolute URL. */
@@ -34,7 +46,13 @@ export interface ShareRowProps {
    * The app's own place to post it (e.g. `{ href: crossPostUrl(…), label:
    * "Post on OrangeCat" }`). Shown first, as the row's one primary action.
    */
-  crossPost?: { href: string; label: string };
+  crossPost?: CrossPost;
+  /**
+   * `"public"` (default): every way to spread it. `"restricted"`: the content is
+   * not public, so outside services would only show a dead link — the row keeps
+   * the cross-post and "Copy link" and says who can open it.
+   */
+  audience?: "public" | "restricted";
   /** `shareLinks` ids to leave out. */
   exclude?: string[];
   labels?: Partial<ShareRowLabels>;
@@ -52,6 +70,7 @@ export function ShareRow({
   title,
   summary,
   crossPost,
+  audience = "public",
   exclude,
   labels,
   linkLabels,
@@ -71,9 +90,10 @@ export function ShareRow({
   }, []);
 
   const skip = new Set(exclude ?? []);
-  const links = shareLinks({ url, title, summary, labels: linkLabels }).filter(
-    (link) => !skip.has(link.id),
-  );
+  const restricted = audience === "restricted";
+  const links = restricted
+    ? []
+    : shareLinks({ url, title, summary, labels: linkLabels }).filter((link) => !skip.has(link.id));
 
   function copy(): void {
     const done = (): void => {
@@ -100,17 +120,28 @@ export function ShareRow({
       <ul className="bp-share-list">
         {crossPost ? (
           <li>
-            <a
-              className="bp-share-action bp-share-primary"
-              href={crossPost.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {crossPost.label}
-            </a>
+            {crossPost.onClick ? (
+              <button
+                type="button"
+                className="bp-share-action bp-share-primary"
+                onClick={crossPost.onClick}
+              >
+                {crossPost.label}
+              </button>
+            ) : (
+              <a
+                className="bp-share-action bp-share-primary"
+                href={crossPost.href}
+                {...(crossPost.newTab === false
+                  ? {}
+                  : { target: "_blank", rel: "noopener noreferrer" })}
+              >
+                {crossPost.label}
+              </a>
+            )}
           </li>
         ) : null}
-        {canShare ? (
+        {canShare && !restricted ? (
           <li>
             <button type="button" className="bp-share-action" onClick={share}>
               {words.share}
@@ -143,6 +174,7 @@ export function ShareRow({
           </li>
         ))}
       </ul>
+      {restricted ? <p className="bp-share-note">{words.restrictedNote}</p> : null}
     </nav>
   );
 }

@@ -29,6 +29,16 @@ once no adopter uses it). No API changed.
   to zero and the text touched the edge. `.bp-article` is `content-box`, so a
   border-box reset no longer narrows the measure.
 
+## 0.9.0 — 2026-11-13
+
+- `ShareRow`'s cross-post can act in place: `crossPost: { label, onClick }`
+  renders a button (a repost sheet on the same site), and a link cross-post
+  can stay in the tab with `newTab: false`. Exported as the `CrossPost` type.
+- `audience: "restricted"` for content that is not public: the row keeps the
+  cross-post and "Copy link", drops the outside services and the share sheet
+  (they would only spread a dead link), and says who can open it
+  (`labels.restrictedNote`).
+
 ## 0.8.1 — 2026-11-13
 
 - The share row's primary action ("Post on …") lost its label on hosts that set

@@ -1483,6 +1483,12 @@
   margin-block: var(--bp-flow);
 }
 
+.bp-share-note {
+  margin: 0.5rem 0 0;
+  color: var(--bp-fg-muted);
+  font-size: 0.875rem;
+}
+
 .bp-share-list {
   display: flex;
   flex-wrap: nowrap;
