@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { JSX } from "react";
 import { useEffect, useState } from "react";
 import type { TocEntry } from "../types.js";
 
@@ -16,7 +16,7 @@ export function Toc({
   items: TocEntry[];
   title?: string;
   minEntries?: number;
-}): ReactNode {
+}): JSX.Element | null {
   const [active, setActive] = useState<string | null>(null);
   const enabled = items.length >= minEntries;
 

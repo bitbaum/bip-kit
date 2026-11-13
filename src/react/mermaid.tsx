@@ -16,7 +16,7 @@
  * to fit a phone; a diagram too wide for that scrolls sideways instead.
  */
 
-import type { ReactNode } from "react";
+import type { JSX } from "react";
 import { useEffect, useId, useRef, useSyncExternalStore } from "react";
 
 /** The one property of CanvasRenderingContext2D the normalizer needs. */
@@ -189,7 +189,7 @@ function resolveFontSizeVar(host: HTMLElement, cssVar: string, fallback: number)
 const LIGHT = { surface: "#f6f6f4", text: "#1a1a18", line: "#8a8a86" };
 const DARK = { surface: "#26262a", text: "#e8e8e6", line: "#8a8a90" };
 
-export function MermaidBlock({ code }: { code: string }): ReactNode {
+export function MermaidBlock({ code }: { code: string }): JSX.Element | null {
   const id = useId().replace(/[^a-zA-Z0-9]/g, "");
   const ref = useRef<HTMLDivElement>(null);
   const dark = useSyncExternalStore(subscribeDark, isDarkNow, getServerDark);

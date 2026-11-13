@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { JSX } from "react";
 import type { FaqSection } from "../faq.js";
 import { faqJsonLd } from "../faq.js";
 import { ArticleBody, type ArticleBodyComponents } from "./article-body.js";
@@ -22,7 +22,7 @@ export async function Faq({
   structuredData = true,
   components,
   className,
-}: FaqProps): Promise<ReactNode> {
+}: FaqProps): Promise<JSX.Element | null> {
   const bodies = await Promise.all(
     sections.map((s) =>
       Promise.all(

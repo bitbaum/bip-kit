@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from "react";
+import type { ComponentType, JSX, ReactNode } from "react";
 import type { ContentBlock } from "../types.js";
 import { renderInline } from "./inline.js";
 import { parseInline } from "../inline.js";
@@ -209,7 +209,7 @@ export async function ArticleBody({
   highlighter,
   lightbox = true,
   className,
-}: ArticleBodyProps): Promise<ReactNode> {
+}: ArticleBodyProps): Promise<JSX.Element | null> {
   const enriched: Enriched = new WeakMap();
   await enrich(blocks, enriched, highlighter);
   const ctx: RenderContext = { enriched, components, lightbox };

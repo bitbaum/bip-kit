@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import type { CalloutKind, ContentBlock } from "../types.js";
 import type { Inline } from "../inline.js";
 import { parseInline } from "../inline.js";
@@ -19,7 +19,13 @@ export interface FigureProps {
   lightbox?: boolean;
 }
 
-export function Figure({ src, alt, caption, spans, lightbox = true }: FigureProps): ReactNode {
+export function Figure({
+  src,
+  alt,
+  caption,
+  spans,
+  lightbox = true,
+}: FigureProps): JSX.Element | null {
   const img = <img className="bp-img" src={src} alt={alt} loading="lazy" />;
   return (
     <figure className="bp-figure">
@@ -43,7 +49,7 @@ export function Gallery({
 }: {
   images: { src: string; alt: string; caption?: string }[];
   lightbox?: boolean;
-}): ReactNode {
+}): JSX.Element | null {
   return (
     <div className="bp-gallery" data-count={images.length}>
       {images.map((image, i) => (
@@ -74,7 +80,7 @@ export function Callout({
   kind: CalloutKind;
   title?: string;
   children: ReactNode;
-}): ReactNode {
+}): JSX.Element | null {
   return (
     <aside className={`bp-callout bp-callout--${kind}`}>
       <p className="bp-callout-title">{title ?? CALLOUT_LABELS[kind]}</p>
@@ -91,7 +97,7 @@ export function PullQuote({
   text: string;
   spans?: Inline[];
   cite?: string;
-}): ReactNode {
+}): JSX.Element | null {
   return (
     <figure className="bp-pullquote">
       <blockquote className="bp-pullquote-text">{renderInline(spansOf(text, spans))}</blockquote>
@@ -100,7 +106,11 @@ export function PullQuote({
   );
 }
 
-export function Stats({ items }: { items: { value: string; label: string }[] }): ReactNode {
+export function Stats({
+  items,
+}: {
+  items: { value: string; label: string }[];
+}): JSX.Element | null {
   return (
     <dl className="bp-stats" data-count={items.length}>
       {items.map((item, i) => (
@@ -119,7 +129,7 @@ export interface FootnoteEntry {
 }
 
 /** End-of-article footnote list with backlinks to each reference. */
-export function Footnotes({ notes }: { notes: FootnoteEntry[] }): ReactNode {
+export function Footnotes({ notes }: { notes: FootnoteEntry[] }): JSX.Element | null {
   if (notes.length === 0) return null;
   return (
     <section className="bp-footnotes" aria-label="Footnotes">
@@ -142,7 +152,7 @@ export function Footnotes({ notes }: { notes: FootnoteEntry[] }): ReactNode {
 }
 
 /** Allowlisted video embed (YouTube nocookie / Vimeo); anything else is a link. */
-export function VideoEmbed({ url, title }: { url: string; title?: string }): ReactNode {
+export function VideoEmbed({ url, title }: { url: string; title?: string }): JSX.Element | null {
   const parsed = parseVideoEmbed(url);
   if (!parsed) {
     const href = safeHref(url);
@@ -172,7 +182,13 @@ export function VideoEmbed({ url, title }: { url: string; title?: string }): Rea
   );
 }
 
-export function TableBlock({ headers, rows }: { headers: string[]; rows: string[][] }): ReactNode {
+export function TableBlock({
+  headers,
+  rows,
+}: {
+  headers: string[];
+  rows: string[][];
+}): JSX.Element | null {
   return (
     <div className="bp-table-wrap">
       <table className="bp-table">

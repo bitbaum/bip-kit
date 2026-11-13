@@ -1,4 +1,4 @@
-import type { ElementType, ReactNode } from "react";
+import type { ElementType, JSX, ReactNode } from "react";
 import type { ChangelogEntry, ChangelogTag, RoadmapDoc } from "../types.js";
 import { safeHref } from "./inline.js";
 
@@ -25,7 +25,7 @@ export function RoadmapDocument({
   className,
   essayHref = (href) => href,
   essayLink,
-}: RoadmapDocumentProps): ReactNode {
+}: RoadmapDocumentProps): JSX.Element | null {
   const Heading = `h${headingLevel}` as ElementType;
   const BucketHeading = `h${headingLevel + 1}` as ElementType;
   const ItemHeading = `h${Math.min(6, headingLevel + 2)}` as ElementType;
@@ -104,7 +104,7 @@ export function ChangelogDocument({
   className,
   formatDate = (date) => date,
   tagLabels = {},
-}: ChangelogDocumentProps): ReactNode {
+}: ChangelogDocumentProps): JSX.Element | null {
   const labels = { ...defaultTagLabels, ...tagLabels };
   return (
     <ol className={["bp-changelog", className].filter(Boolean).join(" ")} lang={lang}>

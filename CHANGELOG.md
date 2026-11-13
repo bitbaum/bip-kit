@@ -7,6 +7,17 @@ Same code, same version, same repository; the package now lives under the
 `@bitbaum/bip-kit` and import from it (`bip-kit` stays installable and is deprecated
 once no adopter uses it). No API changed.
 
+## 0.9.1 — 2026-11-13
+
+- Exported components declare `JSX.Element` (async: `Promise<JSX.Element>`),
+  resolved against the app's own React, instead of `ReactNode`. Since 0.7.1
+  an app on React 18 types could not build: `'ArticleBody' cannot be used as a
+  JSX component`, because React 19's `ReactNode` includes `bigint`, which
+  React 18's `AwaitedReactNode` does not. Measured on kivvi (React 18.3,
+  @types/react 18.3.27): 0.9.0 fails its type check, 0.9.1 passes, and Solon
+  (React 19) passes both. A test holds every component's published type to
+  `JSX.Element`.
+
 ## 0.9.0 — 2026-11-13
 
 - `ShareRow`'s cross-post can act in place: `crossPost: { label, onClick }`
