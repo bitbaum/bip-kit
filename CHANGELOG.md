@@ -7,6 +7,14 @@ Same code, same version, same repository; the package now lives under the
 `@bitbaum/bip-kit` and import from it (`bip-kit` stays installable and is deprecated
 once no adopter uses it). No API changed.
 
+## 0.8.1 — 2026-11-13
+
+- The share row's primary action ("Post on …") lost its label on hosts that set
+  `--bp-bg: transparent` to let their own page show through (Solon does): the
+  ink was `--bp-bg`. It is now `--bp-on-fg`, a new variable with light and
+  dark defaults that a host can override. A style test keeps any `--bp-fg`
+  fill from taking its ink from `--bp-bg` again.
+
 ## 0.8.0 — 2026-11-13
 
 - Add `shareLinks({ url, title, summary?, labels? })`: the ordered

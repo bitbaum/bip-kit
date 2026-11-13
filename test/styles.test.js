@@ -249,3 +249,23 @@ test("the share row is one line that scrolls sideways, with 44px targets", () =>
   assert.match(action, /min-height:\s*44px/);
   assert.match(action, /white-space:\s*nowrap/);
 });
+
+test("ink on a --bp-fg fill never comes from --bp-bg, which hosts may make transparent", () => {
+  const css = readFileSync(new URL("../styles.css", import.meta.url), "utf8");
+  const filled = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)].filter(([, , body]) =>
+    /background:\s*var\(--bp-fg\)/.test(body),
+  );
+  assert.ok(filled.length > 0, "no rule fills with --bp-fg");
+  for (const [, selector, body] of filled) {
+    assert.doesNotMatch(
+      body,
+      /(^|[^-])color:\s*var\(--bp-bg\)/,
+      `${selector.trim()} uses --bp-bg as ink`,
+    );
+  }
+  assert.equal(
+    (css.match(/--bp-on-fg:/g) ?? []).length,
+    3,
+    "--bp-on-fg is set for light, dark media and [data-theme=dark]",
+  );
+});
