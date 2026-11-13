@@ -60,4 +60,4 @@ export {
 } from "./feedback.js";
 export type { FeedbackLabels } from "./feedback.js";
 export { ShareRow, defaultShareRowLabels } from "./share-row.js";
-export type { ShareRowProps, ShareRowLabels } from "./share-row.js";
+export type { ShareRowProps, ShareRowLabels, CrossPost } from "./share-row.js";

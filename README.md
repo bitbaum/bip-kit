@@ -515,6 +515,12 @@ browser offers `navigator.share`. `exclude={["hackernews"]}` drops a service,
 each href is the service's documented share or intent URL (sources in
 `src/share.ts`). Reddit is not in the list: it documents no share URL to cite.
 
+On the product's own site, the cross-post can act in place instead of linking:
+`crossPost={{ label: "Repost on OrangeCat", onClick: openRepost }}` renders a
+button, and `newTab: false` keeps a link cross-post in the tab. For content that
+is not public, `audience="restricted"` keeps only the cross-post and "Copy link"
+and tells the reader who can open the link.
+
 ## Feedback — let people answer the roadmap and the changelog
 
 > **In bitbaum products, a vote goes through Solon, not this module.** Voting

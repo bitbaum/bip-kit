@@ -46,3 +46,33 @@ test("ShareRow takes the app's words", () => {
   assert.match(html, /aria-label="Teilen"/);
   assert.match(html, /Link kopieren/);
 });
+
+test("ShareRow cross-post can act in place: a button, not a link", () => {
+  const html = renderToString(
+    h(ShareRow, { ...post, crossPost: { label: "Repost on OrangeCat", onClick: () => {} } }),
+  );
+  assert.match(html, /<button[^>]*bp-share-primary[^>]*>Repost on OrangeCat<\/button>/);
+  assert.doesNotMatch(html, /<a[^>]*bp-share-primary/);
+});
+
+test("ShareRow cross-post link can stay in the same tab", () => {
+  const html = renderToString(
+    h(ShareRow, { ...post, crossPost: { label: "Post here", href: "/share", newTab: false } }),
+  );
+  const primary = html.match(/<a[^>]*bp-share-primary[^>]*>/)[0];
+  assert.doesNotMatch(primary, /target=/);
+});
+
+test("ShareRow for restricted content offers only the cross-post and Copy link, and says why", () => {
+  const html = renderToString(
+    h(ShareRow, {
+      ...post,
+      audience: "restricted",
+      crossPost: { label: "Repost on OrangeCat", onClick: () => {} },
+    }),
+  );
+  assert.match(html, /Copy link/);
+  assert.match(html, /Repost on OrangeCat/);
+  assert.doesNotMatch(html, /data-share=/);
+  assert.match(html, /Only people who can already see this can open the link\./);
+});
